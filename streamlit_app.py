@@ -132,4 +132,4 @@ st.pyplot(fig)
 
 
 
-st.dataframe(df.head())
+st.dataframe(df.head(30))
