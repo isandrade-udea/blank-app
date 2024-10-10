@@ -123,7 +123,7 @@ st.write(f"El tamaño del dataset es: {df.shape[0]} filas y {df.shape[1]} column
 df['df_time_diffs'] = df.index.to_series().diff().dt.total_seconds()
 
 fig, ax = plt.subplots(figsize=(4,3))
-sns.histplot(df['df_time_diffs'].dropna(),ax=ax)
+sns.histplot(df['df_time_diffs'].dropna(),kde=True,ax=ax)
 
 # Obtener los valores mínimo y máximo de la columna 'df_time_diffs'
 min_val = df['df_time_diffs'].min()
