@@ -129,7 +129,6 @@ sns.histplot(df['df_time_diffs'].dropna(), kde=True)
 plt.title('Distribución de Diferencias de Tiempo entre Registros')
 plt.xlabel('Diferencia de Tiempo (segundos)')
 plt.ylabel('Frecuencia')
-
 # Mostrar el gráfico en Streamlit
 st.pyplot(plt.gcf())
 
