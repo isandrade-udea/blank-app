@@ -129,4 +129,4 @@ df['df_time_diffs'] = df.index.to_series().diff().dt.total_seconds()
 
 
 
-st.dataframe(df.head())
+#st.dataframe(df.head())
