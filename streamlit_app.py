@@ -126,16 +126,37 @@ st.write(f"El tamaño del dataset es: {df.shape[0]} filas y {df.shape[1]} column
 df['df_time_diffs'] = df.index.to_series().diff().dt.total_seconds()
 
 fig, ax = plt.subplots(figsize=(6,2.5))
-sns.histplot(df['df_time_diffs'].dropna(),kde=True,ax=ax)
+# Crear el histograma con KDE
+sns.histplot(df['df_time_diffs'].dropna(), kde=True, ax=ax)
 
 # Obtener los valores mínimo y máximo de la columna 'df_time_diffs'
 min_val = df['df_time_diffs'].min()
 max_val = df['df_time_diffs'].max()
 
-# Configurar los límites de los ejes X e Y
+# Calcular la mediana de las diferencias de tiempo
+mediana_dif = df['df_time_diffs'].median()
+# Convertir la mediana a minutos
+mediana_minutos = mediana_dif / 60
+
+# Configurar los límites del eje X
 ax.set_xlim(0, max_val)
+
+# Asignar nombres a los ejes y el título
+ax.set_xlabel('Diferencia de tiempo entre observaciones (segundos)')
+ax.set_ylabel('Frecuencia')
+ax.set_title('Distribución de la periodicidad en el dataset')
+
+# Agregar texto sobre la mediana en el gráfico
+ax.axvline(mediana_dif, color='r', linestyle='--', label='Mediana: {:.2f} s ({:.2f} min)'.format(mediana_dif, mediana_minutos))
+ax.legend()
+
 # Mostrar el gráfico en Streamlit
 st.pyplot(fig)
+
+# Mensaje sobre la mediana
+st.write(f"La frecuencia mediana es de {mediana_dif:.2f} segundos, que son {mediana_minutos:.2f} minutos. La vamos a tomar como {mediana_minutos:.0f} minutos.")
+
+
 
 
 
