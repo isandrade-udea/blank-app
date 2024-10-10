@@ -113,8 +113,15 @@ df = df[~df['n_ruta'].isin([2, 6, 8])]
 # Eliminar las columnas 'Fecha_Hora_Final' y 'n_ruta'
 df = df.drop(['Fecha_Hora_Final', 'n_ruta','Viaje'], axis=1)
 
+st.dataframe(df.head())
+
 # fijamos la columna como indice
 df = df.set_index('Fecha_Hora_Salida')
+
+#organizamos en orden cronologico
+df.sort_index(inplace=True)
+
+st.dataframe(df.head())
 
 # Paso 1: Eliminar índices duplicados, manteniendo la primera ocurrencia
 df = df[~df.index.duplicated(keep='first')]
