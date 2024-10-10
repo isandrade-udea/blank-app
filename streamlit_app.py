@@ -113,15 +113,11 @@ df = df[~df['n_ruta'].isin([2, 6, 8])]
 # Eliminar las columnas 'Fecha_Hora_Final' y 'n_ruta'
 df = df.drop(['Fecha_Hora_Final', 'n_ruta','Viaje'], axis=1)
 
-st.dataframe(df.head())
-
 # fijamos la columna como indice
 df = df.set_index('Fecha_Hora_Salida')
 
 #organizamos en orden cronologico
 df.sort_index(inplace=True)
-
-st.dataframe(df.head())
 
 # Paso 1: Eliminar índices duplicados, manteniendo la primera ocurrencia
 df = df[~df.index.duplicated(keep='first')]
@@ -132,7 +128,7 @@ st.write(f"El tamaño del dataset es: {df.shape[0]} filas y {df.shape[1]} column
 # Análisis de la periodicidad del dataset
 df['df_time_diffs'] = df.index.to_series().diff().dt.total_seconds()
 
-fig, ax = plt.subplots(figsize=(6,2.5))
+fig, ax = plt.subplots(figsize=(6.5,2))
 # Crear el histograma con KDE
 sns.histplot(df['df_time_diffs'].dropna(), kde=True, ax=ax)
 
@@ -149,9 +145,9 @@ mediana_minutos = mediana_dif / 60
 ax.set_xlim(0, max_val)
 
 # Asignar nombres a los ejes y el título
-ax.set_xlabel('Diferencia de tiempo entre observaciones (segundos)')
+ax.set_xlabel('Diferencia entre observaciones (segundos)')
 ax.set_ylabel('Frecuencia')
-ax.set_title('Distribución de la periodicidad en el dataset')
+ax.set_title('Distribución de la periodicidad ')
 
 # Agregar texto sobre la mediana en el gráfico
 ax.axvline(mediana_dif, color='r', linestyle='--', label='Mediana: {:.2f} s ({:.2f} min)'.format(mediana_dif, mediana_minutos))
@@ -164,6 +160,7 @@ st.pyplot(fig)
 st.write(f"La frecuencia mediana es de {mediana_dif:.2f} segundos, que son {mediana_minutos:.2f} minutos. La vamos a tomar como {mediana_minutos:.0f} minutos.")
 
 
+st.dataframe(df.head())
 
 
 
