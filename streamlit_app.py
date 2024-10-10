@@ -130,7 +130,7 @@ min_val = df['df_time_diffs'].min()
 max_val = df['df_time_diffs'].max()
 
 # Configurar los límites de los ejes X e Y
-ax.set_xlim(min_val, max_val)
+ax.set_xlim(0, max_val)
 # Mostrar el gráfico en Streamlit
 st.pyplot(fig)
 
