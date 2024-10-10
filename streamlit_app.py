@@ -160,7 +160,7 @@ st.write(f"La frecuencia mediana es de {mediana_dif:.2f} segundos, que son {medi
 
 
 
-st(df['df_time_diffs'].describe())
+st.(df['df_time_diffs'].describe())
 
 
 st.dataframe(df.head(30))
