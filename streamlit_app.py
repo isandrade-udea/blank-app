@@ -1,3 +1,10 @@
+#librerias
+import streamlit as st
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+
 st.title(":bus: Cootracovi ")
 st.write(
     "Empresa trasnportadora de las rutas: HONDA - ORIENTAL - HONDA"
