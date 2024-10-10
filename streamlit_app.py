@@ -122,9 +122,15 @@ st.write(f"El tamaño del dataset es: {df.shape[0]} filas y {df.shape[1]} column
 # Análisis de la periodicidad del dataset
 df['df_time_diffs'] = df.index.to_series().diff().dt.total_seconds()
 
-fig, ax = plt.subplots(figsize=(3,1))
-# fig = plt.figure(figsize=(5,3))
-sns.histplot(df['df_time_diffs'].dropna())
+fig, ax = plt.subplots(figsize=(4,3))
+sns.histplot(df['df_time_diffs'].dropna(),ax=ax)
+
+# Obtener los valores mínimo y máximo de la columna 'df_time_diffs'
+min_val = df['df_time_diffs'].min()
+max_val = df['df_time_diffs'].max()
+
+# Configurar los límites de los ejes X e Y
+ax.set_xlim(min_val, max_val)
 # Mostrar el gráfico en Streamlit
 st.pyplot(fig)
 
