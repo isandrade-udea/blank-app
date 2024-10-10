@@ -131,7 +131,7 @@ plt.xlabel('Diferencia de Tiempo (segundos)')
 plt.ylabel('Frecuencia')
 
 # Mostrar el gráfico en Streamlit
-st.pyplot(plt)
+st.pyplot(plt.gcf())
 
 
 
