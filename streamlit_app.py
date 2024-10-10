@@ -15,22 +15,25 @@ st.write(
 st.header("Cargar Datos desde un Link de GitHub")
 url = st.text_input("Introduce la URL del archivo CSV en GitHub")
 
-# Verificar si se ha introducido una URL
-if url:
-    try:
-        # Leer el archivo CSV directamente desde la URL
-        df = pd.read_csv(url)
-        
-        # Mostrar las primeras filas del DataFrame
-        st.write("Datos Cargados:")
-        st.dataframe(df.head())  # Muestra las primeras filas del DataFrame
-        
-        # Aquí puedes agregar más análisis o visualizaciones usando df
-    except Exception as e:
-        st.error(f"Error al cargar el archivo: {e}")
-else:
-    st.write("Por favor, introduce la URL de un archivo CSV en GitHub para continuar.")
+def cargar_csv_desde_url(url):
+    # Verificar si se ha introducido una URL
+    if url:
+        try:
+            # Leer el archivo CSV directamente desde la URL
+            df = pd.read_csv(url)
+            return df
+        except Exception as e:
+            st.error(f"Error al cargar el archivo: {e}")
+            return None
+    else:
+        st.write("Por favor, introduce la URL de un archivo CSV en GitHub para continuar.")
+        return None
 
+df = cargar_csv_desde_url(url)
+
+# Mostrar las primeras filas del DataFrame
+st.write("Datos Cargados:")
+st.dataframe(df.head(8))  # Muestra las primeras filas del DataFrame
 
 #preprocesamiento
 
