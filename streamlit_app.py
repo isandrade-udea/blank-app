@@ -123,7 +123,7 @@ st.write(f"El tamaño del dataset es: {df.shape[0]} filas y {df.shape[1]} column
 df['df_time_diffs'] = df.index.to_series().diff().dt.total_seconds()
 
 fig = plt.figure(figsize=(5,3))
-sns.histplot(df['df_time_diffs'].dropna(), kde=True)
+sns.histplot(df['df_time_diffs'].dropna())
 # Mostrar el gráfico en Streamlit
 st.pyplot(fig)
 
