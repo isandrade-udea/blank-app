@@ -157,7 +157,7 @@ ax.legend()
 st.pyplot(fig)
 
 # Mensaje sobre la mediana
-st.write(f"La frecuencia mediana es de {mediana_dif:.2f} segundos, que son {mediana_minutos:.2f} minutos. La vamos a tomar como {mediana_minutos:.0f} minutos.")
+st.write(f"La frecuencia mediana es de {mediana_dif:.2f} segundos, que son {mediana_minutos:.2f} minutos. La vamos a tomar como 5 minutos.")
 
 
 st.dataframe(df.head())
