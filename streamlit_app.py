@@ -122,7 +122,12 @@ st.write(f"El tamaño del dataset es: {df.shape[0]} filas y {df.shape[1]} column
 df['df_time_diffs'] = df.index.to_series().diff().dt.total_seconds()
 
 
-
+# Configurar el gráfico de Seaborn
+plt.figure(figsize=(10, 6))
+sns.histplot(df['df_time_diffs'].dropna(), kde=True)
+plt.title('Distribución de Diferencias de Tiempo entre Registros')
+plt.xlabel('Diferencia de Tiempo (segundos)')
+plt.ylabel('Frecuencia')
 
 
 
