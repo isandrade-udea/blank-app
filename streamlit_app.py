@@ -159,12 +159,14 @@ st.pyplot(fig)
 # Mensaje sobre la mediana
 st.write(f"La frecuencia mediana es de {mediana_dif:.2f} segundos, que son {mediana_minutos:.2f} minutos. La vamos a tomar como 5 minutos.")
 
+# Cambiar la frecuencia a 5 minutos ('5T') y rellenar valores faltantes con bfill
+df2 = df.asfreq(freq='5T', method='bfill')
+
 
 st.dataframe(df.head())
 
 
 
-st.write(df['df_time_diffs'].describe())
 
 
-st.dataframe(df.head(30))
+
