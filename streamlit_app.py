@@ -121,13 +121,15 @@ st.write(f"El tamaño del dataset es: {df.shape[0]} filas y {df.shape[1]} column
 
 # Análisis de la periodicidad del dataset
 df['df_time_diffs'] = df.index.to_series().diff().dt.total_seconds()
+
+fig = plt.figure(figsize=(5,3))
 sns.histplot(df['df_time_diffs'].dropna(), kde=True)
 # Mostrar el gráfico en Streamlit
-st.pyplot(plt.gcf())
+st.pyplot(fig)
 
 
 
 
 
 
-#st.dataframe(df.head())
+st.dataframe(df.head())
