@@ -5,3 +5,6 @@ Pillow
 matplotlib
 seaborn
 plotly
+skforecast
+lightgbm
+sklearn
