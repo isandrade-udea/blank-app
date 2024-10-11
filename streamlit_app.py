@@ -272,6 +272,8 @@ with col3:
     ax.set_ylabel('Pasajeros')
     ax.set_title('Distribución de pasajeros por jornada')
     st.pyplot(fig)
+
+st.write("Autocorrelacion")
     
 
 
