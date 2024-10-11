@@ -193,10 +193,31 @@ print(f'Tamaño conjunto de entrenamiento: {len(train)}')
 print(f'Tamaño conjunto de validación: {len(val)}')
 print(f'Tamaño conjunto de prueba: {len(test)}')
 
-
 st.dataframe(df2.head())
 
+fig = go.Figure()
+fig.add_trace(go.Scatter(x=train.index, y=train['Pasaj'], mode='lines', name='Train'))
+fig.add_trace(go.Scatter(x=val.index, y=val['Pasaj'], mode='lines', name='Validation'))
+fig.add_trace(go.Scatter(x=test.index, y=test['Pasaj'], mode='lines', name='Test'))
+fig.update_layout(
+    xaxis_title="Fecha",
+    yaxis_title="Pasajeros",
+    legend_title="Partición:",
+    width=850,
+    height=400,
+    margin=dict(l=20, r=20, t=35, b=20),
+    legend=dict(
+        orientation="h",
+        yanchor="top",
+        y=1,
+        xanchor="left",
+        x=0.001,
+    )
+)
+fig.update_xaxes(rangeslider_visible=True)
 
+# Mostrar el gráfico en Streamlit
+st.pyplot(fig)
 
 
 
