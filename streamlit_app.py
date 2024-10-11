@@ -253,11 +253,24 @@ with col2:
 
 with col3:
     fig, ax = plt.subplots(figsize=(8.5, 5.5))
-    df2.boxplot(column='Pasaj', by='Jornada', ax=ax,)
-    df2.groupby('Jornada')['Pasaj'].median().plot(style='o-', linewidth=0.8, ax=ax)
+    # Orden para las jornadas
+    jornada_order = ['Madrugada', 'Mañana', 'Tarde', 'Noche']
+    
+    # Crear el boxplot con transparencia
+    sns.boxplot(x='Jornada', y='Pasaj', data=df, ax=ax, order=jornada_order,
+                boxprops=dict(facecolor='none', edgecolor='blue'),  # Transparente con bordes azules
+                medianprops=dict(color='green', lw=1),  # Línea de la mediana más gruesa y verde
+                whiskerprops=dict(color='blue'),  # Líneas de los bigotes
+                capprops=dict(color='blue'),  # Extremos de los bigotes
+                flierprops=dict(marker='o', color='red', alpha=0.5))  # Outliers en rojo y semi-transparentes
+    
+    # Añadir la línea de mediana por jornada
+    medianas = df.groupby('Jornada',observed=False)['Pasaj'].median().reindex(jornada_order)
+    ax.plot(jornada_order, medianas, 'o-', color='blue', markersize=8, label='Mediana',lw=0.5)  # Mediana como bola azul
+    
+    # Etiquetas y título
     ax.set_ylabel('Pasajeros')
-    ax.set_title('Distribución pasajeros por Jornada')
-    st.pyplot(fig)
+    ax.set_title('Distribución de pasajeros por jornada')
     st.pyplot(fig)
     
 
