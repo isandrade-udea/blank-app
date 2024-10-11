@@ -229,7 +229,7 @@ st.plotly_chart(fig)
 
 st.write("Gráficos de estacionalidad")
 
-fig, ax = plt.subplots(1,3 figsize=(6.5, 2.5))
+fig, ax = plt.subplots(1,3, figsize=(6.5, 2.5))
 df2['dia'] = df2.index.day_name()
 df2.boxplot(column='Pasaj', by='dia', ax=ax[0],)
 df2.groupby('dia')['Pasaj'].median().plot(style='o-', linewidth=0.8, ax=ax)
