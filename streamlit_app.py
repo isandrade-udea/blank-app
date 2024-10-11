@@ -10,7 +10,7 @@ import plotly.io as pio
 # Modelado y Forecasting
 import skforecast
 import lightgbm
-import scikit-learn as sklearn
+import sklearn
 from lightgbm import LGBMRegressor
 
 
