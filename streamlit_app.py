@@ -5,12 +5,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import seaborn as sns
-#import plotly.graph_objects as go
-#import plotly.io as pio
+import plotly.graph_objects as go
+import plotly.io as pio
 # Modelado y Forecasting
 import skforecast
 import lightgbm
-import sklearn
+import scikit-learn as sklearn
 from lightgbm import LGBMRegressor
 
 
