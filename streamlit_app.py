@@ -5,6 +5,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import seaborn as sns
+import plotly.graph_objects as go
+import plotly.io as pio
+# Modelado y Forecasting
+import skforecast
+import lightgbm
+import sklearn
+from lightgbm import LGBMRegressor
+
 
 st.title(":bus: Cootracovi ")
 st.write(
@@ -161,6 +169,29 @@ st.write(f"La frecuencia mediana es de {mediana_dif:.2f} segundos, que son {medi
 
 # Cambiar la frecuencia a 5 minutos ('5T') y rellenar valores faltantes con bfill
 df2 = df.asfreq(freq='5T', method='bfill')
+
+df = df.rename(columns={'Fecha_Hora_Salida': 'Fecha_Hora'})
+
+# Separación datos train-val-test 70% 15% 15%
+
+train_size = 0.7  # 70% para entrenamiento
+val_size = 0.15   # 15% para validación
+test_size = 0.25  # 15% para prueba
+
+# Calcular los índices para hacer la separación
+n = len(df)
+train_end = int(train_size * n)
+val_end = int((train_size + val_size) * n)
+
+# Separar los datos en conjuntos de entrenamiento, validación y prueba
+train = df[:train_end]  # Desde el inicio hasta el 70% de los datos
+val = df[train_end:val_end]  # Del 70% al 85%
+test = df[val_end:]  # Desde el 85% hasta el final
+
+# Verificar el tamaño de cada conjunto
+print(f'Tamaño conjunto de entrenamiento: {len(train)}')
+print(f'Tamaño conjunto de validación: {len(val)}')
+print(f'Tamaño conjunto de prueba: {len(test)}')
 
 
 st.dataframe(df.head())
