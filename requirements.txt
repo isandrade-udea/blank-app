@@ -6,4 +6,4 @@ matplotlib
 seaborn
 skforecast
 lightgbm
-sklearn
+scikit-learn
