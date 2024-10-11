@@ -233,19 +233,26 @@ col1, col2, col3 = st.columns(3)
 
 # Agregar contenido en la primera columna
 with col1:
-    fig, ax = plt.subplots(figsize=(5.5, 2.5))
-    df['dia'] = df.index.day_name()
-    df.boxplot(column='Pasaj', by='dia', ax=ax,)
-    df.groupby('dia')['Pasaj'].median().plot(style='o-', linewidth=0.8, ax=ax)
-    ax.set_ylabel('Pasajeros')
-    ax.set_title('Distribución pasajeros por dia')
+    fig, ax = plt.subplots(figsize=(7.5, 4.5))
+    df2['dia'] = df2.index.day_name()
+    df2.boxplot(column='Pasaj', by='dia', ax=ax,)
+    df2.groupby('dia')['Pasaj'].median().plot(style='o-', linewidth=0.8, ax=ax)
+    ax2.set_ylabel('Pasajeros')
+    ax2.set_title('Distribución pasajeros por dia')
     st.pyplot(fig)
 
 # Agregar contenido en la segunda columna
 with col2:
-    st.header("Columna 2")
-    st.write("Este es el contenido de la segunda columna.")
+    fig, ax = plt.subplots(figsize=(7.5, 4.5))
+    df2['hora'] = df2.index.hour
+    df2.boxplot(column='Pasaj', by='hora', ax=ax,)
+    df2.groupby('hora')['Pasaj'].median().plot(style='o-', linewidth=0.8, ax=ax)
+    ax.set_ylabel('Pasajeros')
+    ax.set_title('Distribución pasajeros por hora')
 
+with col3:
+    fig, ax = plt.subplots(figsize=(5.5, 2.5))
+    
 
 
 
