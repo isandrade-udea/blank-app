@@ -229,5 +229,18 @@ st.plotly_chart(fig)
 
 st.write("Gráficos de estacionalidad")
 
+col1, col2, col3 = st.columns(3)
+
+# Agregar contenido en la primera columna
+with col1:
+    st.header("Columna 1")
+    st.write("Este es el contenido de la primera columna.")
+
+# Agregar contenido en la segunda columna
+with col2:
+    st.header("Columna 2")
+    st.write("Este es el contenido de la segunda columna.")
+
+
 
 
