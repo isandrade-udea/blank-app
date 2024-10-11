@@ -195,10 +195,15 @@ print(f'Tamaño conjunto de prueba: {len(test)}')
 
 st.dataframe(df2.head())
 
+# Crear la figura
 fig = go.Figure()
+
+# Agregar las trazas para entrenamiento, validación y prueba
 fig.add_trace(go.Scatter(x=train.index, y=train['Pasaj'], mode='lines', name='Train'))
 fig.add_trace(go.Scatter(x=val.index, y=val['Pasaj'], mode='lines', name='Validation'))
 fig.add_trace(go.Scatter(x=test.index, y=test['Pasaj'], mode='lines', name='Test'))
+
+# Configurar el layout de la figura
 fig.update_layout(
     xaxis_title="Fecha",
     yaxis_title="Pasajeros",
@@ -214,10 +219,12 @@ fig.update_layout(
         x=0.001,
     )
 )
+
+# Mostrar el range slider en el eje X
 fig.update_xaxes(rangeslider_visible=True)
 
 # Mostrar el gráfico en Streamlit
-st.pyplot(fig)
+st.plotly_chart(fig)
 
 
 
