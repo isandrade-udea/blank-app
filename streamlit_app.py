@@ -195,6 +195,7 @@ print(f'Tamaño conjunto de prueba: {len(test)}')
 
 st.dataframe(df2.head())
 
+st.write("Serie de tiempo para pasajeros")
 # Crear la figura
 fig = go.Figure()
 
@@ -226,6 +227,7 @@ fig.update_xaxes(rangeslider_visible=True)
 # Mostrar el gráfico en Streamlit
 st.plotly_chart(fig)
 
+st.write("Gráficos de estacionalidad")
 
 
 
