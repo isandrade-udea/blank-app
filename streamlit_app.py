@@ -237,8 +237,8 @@ with col1:
     df2['dia'] = df2.index.day_name()
     df2.boxplot(column='Pasaj', by='dia', ax=ax,)
     df2.groupby('dia')['Pasaj'].median().plot(style='o-', linewidth=0.8, ax=ax)
-    ax2.set_ylabel('Pasajeros')
-    ax2.set_title('Distribución pasajeros por dia')
+    ax.set_ylabel('Pasajeros')
+    ax.set_title('Distribución pasajeros por dia')
     st.pyplot(fig)
 
 # Agregar contenido en la segunda columna
