@@ -41,7 +41,7 @@ df = cargar_csv_desde_url(url)
 
 # Mostrar las primeras filas del DataFrame
 st.write("Datos Cargados:")
-st.write(df.head(8))  # Muestra las primeras filas del DataFrame
+st.dataframe(df.head(8)) # Muestra las primeras filas del DataFrame
 
 #preprocesamiento
 
