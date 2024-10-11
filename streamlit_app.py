@@ -229,12 +229,23 @@ st.plotly_chart(fig)
 
 st.write("Gráficos de estacionalidad")
 
-fig, ax = plt.subplots(1,3, figsize=(6.5, 2.5))
-df2['dia'] = df2.index.day_name()
-df2.boxplot(column='Pasaj', by='dia', ax=ax[0],)
-df2.groupby('dia')['Pasaj'].median().plot(style='o-', linewidth=0.8, ax=ax)
-ax[0].set_ylabel('Pasajeros')
-ax[0].set_title('Distribución pasajeros por dia')
+col1, col2, col3 = st.columns(3)
+
+# Agregar contenido en la primera columna
+with col1:
+    fig, ax = plt.subplots(figsize=(5.5, 2.5))
+    df['dia'] = df.index.day_name()
+    df.boxplot(column='Pasaj', by='dia', ax=ax,)
+    df.groupby('dia')['Pasaj'].median().plot(style='o-', linewidth=0.8, ax=ax)
+    ax.set_ylabel('Pasajeros')
+    ax.set_title('Distribución pasajeros por dia')
+    st.pyplot(fig)
+
+# Agregar contenido en la segunda columna
+with col2:
+    st.header("Columna 2")
+    st.write("Este es el contenido de la segunda columna.")
+
 
 
 
