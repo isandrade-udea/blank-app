@@ -233,7 +233,7 @@ col1, col2, col3 = st.columns(3)
 
 # Agregar contenido en la primera columna
 with col1:
-    fig, ax = plt.subplots(figsize=(7.5, 4.5))
+    fig, ax = plt.subplots(figsize=(8.5, 4.5))
     df2['dia'] = df2.index.day_name()
     df2.boxplot(column='Pasaj', by='dia', ax=ax,)
     df2.groupby('dia')['Pasaj'].median().plot(style='o-', linewidth=0.8, ax=ax)
@@ -243,15 +243,17 @@ with col1:
 
 # Agregar contenido en la segunda columna
 with col2:
-    fig, ax = plt.subplots(figsize=(7.5, 4.5))
+    fig, ax = plt.subplots(figsize=(8.5, 4.5))
     df2['hora'] = df2.index.hour
     df2.boxplot(column='Pasaj', by='hora', ax=ax,)
     df2.groupby('hora')['Pasaj'].median().plot(style='o-', linewidth=0.8, ax=ax)
     ax.set_ylabel('Pasajeros')
     ax.set_title('Distribución pasajeros por hora')
+    st.pyplot(fig)
 
 with col3:
-    fig, ax = plt.subplots(figsize=(5.5, 2.5))
+    fig, ax = plt.subplots(figsize=(8.5, 2.5))
+    st.pyplot(fig)
     
 
 
