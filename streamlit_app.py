@@ -180,7 +180,7 @@ df2 = df2.rename(columns={'Fecha_Hora_Salida': 'Fecha_Hora'})
 
 train_size = 0.7  # 70% para entrenamiento
 val_size = 0.15   # 15% para validación
-test_size = 0.25  # 15% para prueba
+test_size = 0.15  # 15% para prueba
 
 # Calcular los índices para hacer la separación
 n = len(df2)
@@ -199,7 +199,6 @@ print(f'Tamaño conjunto de prueba: {len(test)}')
 
 st.dataframe(df2.head())
 
-st.write("Serie de tiempo para pasajeros")
 # Crear la figura
 fig = go.Figure()
 
@@ -210,6 +209,7 @@ fig.add_trace(go.Scatter(x=test.index, y=test['Pasaj'], mode='lines', name='Test
 
 # Configurar el layout de la figura
 fig.update_layout(
+    title="Serie de tiempo para pasajeros",
     xaxis_title="Fecha",
     yaxis_title="Pasajeros",
     legend_title="Partición:",
@@ -231,13 +231,13 @@ fig.update_xaxes(rangeslider_visible=True)
 # Mostrar el gráfico en Streamlit
 st.plotly_chart(fig)
 
-st.write("Gráficos de estacionalidad")
+st.header("Gráficos de estacionalidad")
 
 col1, col2, col3 = st.columns(3)
 
 # Agregar contenido en la primera columna
 with col1:
-    fig, ax = plt.subplots(figsize=(8.5, 5.5))
+    fig, ax = plt.subplots(figsize=(9.5, 5.5))
     df2['dia'] = df2.index.day_name()
     df2.boxplot(column='Pasaj', by='dia', ax=ax,)
     df2.groupby('dia')['Pasaj'].median().plot(style='o-', linewidth=0.8, ax=ax)
@@ -247,7 +247,7 @@ with col1:
 
 # Agregar contenido en la segunda columna
 with col2:
-    fig, ax = plt.subplots(figsize=(8.5, 5.5))
+    fig, ax = plt.subplots(figsize=(9.5, 5.5))
     df2['hora'] = df2.index.hour
     df2.boxplot(column='Pasaj', by='hora', ax=ax,)
     df2.groupby('hora')['Pasaj'].median().plot(style='o-', linewidth=0.8, ax=ax)
@@ -256,7 +256,7 @@ with col2:
     st.pyplot(fig)
 
 with col3:
-    fig, ax = plt.subplots(figsize=(8.5, 5.5))
+    fig, ax = plt.subplots(figsize=(9.5, 5.5))
     # Orden para las jornadas
     jornada_order = ['Madrugada', 'Mañana', 'Tarde', 'Noche']
     
@@ -277,8 +277,6 @@ with col3:
     ax.set_title('Distribución de pasajeros por jornada')
     st.pyplot(fig)
 
-st.write("Autocorrelacion")
-
 # Calcula los valores de autocorrelación
 acf_values = acf(df2.Pasaj, nlags=720)
 
@@ -289,7 +287,7 @@ ax.plot(acf_values)
 # Agrega una línea vertical en el lag 275
 ax.axvline(x=286, color='red', linestyle='--')
 ax.axvline(x=286*2, color='red', linestyle='--')
-
+ax.set_title('Autocorrelación')
 ax.set_xlabel('Lags')
 ax.set_ylabel('ACF')
 
@@ -374,6 +372,7 @@ fig.add_trace(trace2)
 
 # Configurar el layout de la figura
 fig.update_layout(
+    title="valores de prueba vs prediccion",
     xaxis_title="Date time",
     yaxis_title="Pasajeros",
     width=850,
@@ -393,5 +392,8 @@ fig.update_xaxes(rangeslider_visible=True)
 
 # Mostrar el gráfico en Streamlit
 st.plotly_chart(fig)
+
+st.header("Metrica"):
+st.write(f"El error absoluto medio es: {metrica}")
 
 
