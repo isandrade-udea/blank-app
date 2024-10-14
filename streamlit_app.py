@@ -277,7 +277,7 @@ with col3:
 st.write("Autocorrelacion")
 
 # Calcula los valores de autocorrelación
-acf_values = acf(df.Pasaj, nlags=720)
+acf_values = acf(df2.Pasaj, nlags=720)
 
 # Grafica la autocorrelación
 fig, ax = plt.subplots(figsize=(6.5,2))
