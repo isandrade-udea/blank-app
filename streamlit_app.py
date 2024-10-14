@@ -357,7 +357,7 @@ metrica, predicciones = backtesting_forecaster(
                             metric             = 'mean_absolute_error',
                             initial_train_size = len(df2.loc[:fecha_fin_val]),
                             refit              = False,
-                            n_jobs             = 'auto',
+                            n_jobs             = -1,#'auto'
                             verbose            = False,
                             show_progress      = True
                         )
@@ -394,6 +394,4 @@ fig.update_xaxes(rangeslider_visible=True)
 # Mostrar el gráfico en Streamlit
 st.plotly_chart(fig)
 
-# Mostrar la métrica en un recuadro
-st.metric(label="Mean Absolute Error", value=round(metrica, 2))
 
