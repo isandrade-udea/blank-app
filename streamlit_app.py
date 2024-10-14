@@ -394,6 +394,6 @@ fig.update_xaxes(rangeslider_visible=True)
 st.plotly_chart(fig)
 
 st.header("Metrica:")
-st.write(f"El error absoluto medio es: {metrica}")
+st.write(f"El error absoluto medio es: {round(metrica['mean_absolute_error'][0],3)}")
 
 
