@@ -12,7 +12,8 @@ import skforecast
 import lightgbm
 import sklearn
 from lightgbm import LGBMRegressor
-
+from scipy.signal import find_peaks
+from statsmodels.tsa.stattools import acf
 
 st.title(":bus: Cootracovi ")
 st.write(
@@ -274,6 +275,25 @@ with col3:
     st.pyplot(fig)
 
 st.write("Autocorrelacion")
+
+# Calcula los valores de autocorrelación
+acf_values = acf(df.Pasaj, nlags=720)
+
+# Grafica la autocorrelación
+fig, ax = plt.subplots(figsize=(6.5,2))
+ax.plot(acf_values)
+
+# Agrega una línea vertical en el lag 275
+ax.axvline(x=286, color='red', linestyle='--')
+ax.axvline(x=286*2, color='red', linestyle='--')
+
+ax.set_xlabel('Lags')
+ax.set_ylabel('ACF')
+
+st.pyplot(fig)
+
+
+
     
 
 
