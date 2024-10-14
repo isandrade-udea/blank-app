@@ -401,9 +401,9 @@ st.write(f"El error absoluto medio es: {round(metrica['mean_absolute_error'][0],
 st.markdown("<h2>Referencias</h2>", unsafe_allow_html=True)  # Usando HTML para subtítulo
 referencias_html = """
 <ol>
-    <li> ciencia de datos.  <a href="https://cienciadedatos.net/documentos/py29-forecasting-demanda-energia-electrica-python.html">link</a></li>
-    <li>Doe, A. & Roe, B. (2019). <i>Machine Learning avanzado</i>. Ediciones ML.</li>
-    <li>Pérez, C. (2022). <b>Cómo utilizar Streamlit para visualizaciones interactivas</b>. <a href="https://streamlit.io">Disponible aquí</a>.</li>
+    <li> Ciencia de datos.  <a href="https://cienciadedatos.net/documentos/py29-forecasting-demanda-energia-electrica-python.html">link</a></li>
+    <li> Codificando bits. Autocorrelacion. <a href="https://www.youtube.com/watch?v=ejS5LKUThMw">link</a> .</li>
+    <li> Codificando bits. Preprocesamiento series tiempo. <a href="https://codificandobits.com/tutorial/pronosticos-series-de-tiempo-redes-lstm-1-preparacion-datos/">link</a> .</li>
 </ol>
 """
 
