@@ -351,11 +351,11 @@ exog_df = df2[['Vehiculo', 'Kms', 'Tiempo_viaje_s', 'Tiempo_muerto_s','hora', 'J
 
 metrica, predicciones = backtesting_forecaster(
                             forecaster         = forecaster,
-                            y                  = df['Pasaj'],
+                            y                  = df2['Pasaj'],
                             exog               = exog_df,
                             steps              = lags,
                             metric             = 'mean_absolute_error',
-                            initial_train_size = len(df.loc[:fecha_fin_val]),
+                            initial_train_size = len(df2.loc[:fecha_fin_val]),
                             refit              = False,
                             n_jobs             = 'auto',
                             verbose            = False,
