@@ -311,7 +311,7 @@ params = {
     'verbose': -1
 }
 forecaster = ForecasterAutoreg(
-                regressor = XGBRegressor(random_state=15926, verbosity=0),
+                regressor = XGBRegressor(**params),
                  #regressor = LGBMRegressor(random_state=15926, verbose=-1), # regresor
                  lags      = lags
              )
@@ -343,8 +343,7 @@ df2 = pd.concat([df2, dia_semana_fin_semana_dummy], axis=1)
 df2[['Dia_Dia_Semana', 'Dia_Fin_Semana']] = \
     df2[['Dia_Dia_Semana', 'Dia_Fin_Semana']].astype(int)
 
-
-st.dataframe(df2.head())
+#st.dataframe(df2.head())
 
 # Crear un DataFrame de variables exógenas
 exog_df = df2[['Vehiculo', 'Kms', 'Tiempo_viaje_s', 'Tiempo_muerto_s','hora', 'Jornada_Madrugada',
@@ -352,11 +351,11 @@ exog_df = df2[['Vehiculo', 'Kms', 'Tiempo_viaje_s', 'Tiempo_muerto_s','hora', 'J
 
 metrica, predicciones = backtesting_forecaster(
                             forecaster         = forecaster,
-                            y                  = df['Pasaj'],
+                            y                  = df2['Pasaj'],
                             exog               = exog_df,
                             steps              = lags,
                             metric             = 'mean_absolute_error',
-                            initial_train_size = len(df.loc[:fecha_fin_val]),
+                            initial_train_size = len(df2.loc[:fecha_fin_val]),
                             refit              = False,
                             n_jobs             = 'auto',
                             verbose            = False,
