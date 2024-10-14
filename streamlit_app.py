@@ -393,7 +393,7 @@ fig.update_xaxes(rangeslider_visible=True)
 # Mostrar el gráfico en Streamlit
 st.plotly_chart(fig)
 
-st.header("Metrica"):
+st.header("Metrica:")
 st.write(f"El error absoluto medio es: {metrica}")
 
 
