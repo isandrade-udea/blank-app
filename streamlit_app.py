@@ -14,6 +14,8 @@ import sklearn
 from lightgbm import LGBMRegressor
 from scipy.signal import find_peaks
 from statsmodels.tsa.stattools import acf
+from skforecast.ForecasterAutoreg import ForecasterAutoreg
+from xgboost import XGBRegressor
 
 st.title(":bus: Cootracovi ")
 st.write(
@@ -291,6 +293,49 @@ ax.set_xlabel('Lags')
 ax.set_ylabel('ACF')
 
 st.pyplot(fig)
+
+# Asegúrate de que el índice tenga frecuencia
+df2 = df2.asfreq('300s')  # 300 segundos
+
+lags = 290
+
+# Crear el forecaster
+forecaster = ForecasterAutoreg(
+                regressor = XGBRegressor(random_state=15926, verbosity=0),
+                 #regressor = LGBMRegressor(random_state=15926, verbose=-1), # regresor
+                 lags      = lags
+             )
+
+# Entrena el forecaster
+fecha_fin_val = str(df2.index[val_end])
+forecaster.fit(y=df2.loc[:fecha_fin_val, 'Pasaj'])
+
+# Crear variables dummy para la columna 'Jornada'
+jornada_dummy = pd.get_dummies(df2['Jornada'], prefix='Jornada')
+
+# Concatenar las variables dummy al DataFrame original
+df2 = pd.concat([df2, jornada_dummy], axis=1)
+
+# Reemplazar True por 1 y False por 0 en las columnas Jornada
+df2[['Jornada_Madrugada', 'Jornada_Mañana', 'Jornada_Noche', 'Jornada_Tarde']] = \
+    df2[['Jornada_Madrugada', 'Jornada_Mañana', 'Jornada_Noche', 'Jornada_Tarde']].astype(int)
+
+# Crear una nueva columna 'Dia_Semana_Fin_Semana'
+df2['Dia_Semana_Fin_Semana'] = np.where(df2.index.weekday < 5, 'Dia_Semana', 'Fin_Semana')
+
+# Crear variables dummy para la nueva columna
+dia_semana_fin_semana_dummy = pd.get_dummies(df2['Dia_Semana_Fin_Semana'], prefix='Dia')
+
+# Concatenar las variables dummy al DataFrame original
+df2 = pd.concat([df2, dia_semana_fin_semana_dummy], axis=1)
+
+# Reemplazar True por 1 y False por 0 en las columnas Dia
+df2[['Dia_Dia_Semana', 'Dia_Fin_Semana']] = \
+    df2[['Dia_Dia_Semana', 'Dia_Fin_Semana']].astype(int)
+
+
+st.dataframe(df2.head())
+
 
 
 
