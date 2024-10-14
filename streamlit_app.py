@@ -398,4 +398,14 @@ st.plotly_chart(fig)
 st.header("Metrica:")
 st.write(f"El error absoluto medio es: {round(metrica['mean_absolute_error'][0],3)}")
 
+st.markdown("<h2>Referencias</h2>", unsafe_allow_html=True)  # Usando HTML para subtítulo
+referencias_html = """
+<ol>
+    <li> ciencia de datos.  <a href="https://cienciadedatos.net/documentos/py29-forecasting-demanda-energia-electrica-python.html">link</a></li>
+    <li>Doe, A. & Roe, B. (2019). <i>Machine Learning avanzado</i>. Ediciones ML.</li>
+    <li>Pérez, C. (2022). <b>Cómo utilizar Streamlit para visualizaciones interactivas</b>. <a href="https://streamlit.io">Disponible aquí</a>.</li>
+</ol>
+"""
+
+st.markdown(referencias_html, unsafe_allow_html=True)
 
