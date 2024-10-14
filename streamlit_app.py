@@ -393,3 +393,7 @@ fig.update_xaxes(rangeslider_visible=True)
 
 # Mostrar el gráfico en Streamlit
 st.plotly_chart(fig)
+
+# Mostrar la métrica en un recuadro
+st.metric(label="Mean Absolute Error", value=round(metrica, 2))
+
