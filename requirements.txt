@@ -8,3 +8,5 @@ skforecast
 lightgbm
 scikit-learn
 plotly
+scipy
+statsmodels
