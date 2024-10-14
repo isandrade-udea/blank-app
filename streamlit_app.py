@@ -309,12 +309,12 @@ params = {
     'reg_alpha': 0.4,
     'reg_lambda': 0.4,
     'random_state': 15926,
-    'verbose': -1
+    'verbose': 0
 }
 forecaster = ForecasterAutoreg(
-                #regressor = XGBRegressor(**params),
-                regressor = LGBMRegressor(random_state=15926, verbose=-1), # regresor
-                lags      = lags
+                    regressor = XGBRegressor(random_state=15926, verbose=0),
+                    #regressor = LGBMRegressor(random_state=15926, verbose=0), # regresor
+                    lags      = lags
              )
 
 # Entrena el forecaster
