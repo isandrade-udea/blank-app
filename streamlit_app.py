@@ -16,7 +16,7 @@ from scipy.signal import find_peaks
 from statsmodels.tsa.stattools import acf
 from skforecast.ForecasterAutoreg import ForecasterAutoreg
 from xgboost import XGBRegressor
-#from skforecast.model_selection import backtesting_forecaster
+from skforecast.model_selection import backtesting_forecaster
 
 st.title(":bus: Cootracovi ")
 st.write(
