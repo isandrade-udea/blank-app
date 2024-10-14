@@ -140,6 +140,8 @@ st.write(f"El tamaño del dataset es: {df.shape[0]} filas y {df.shape[1]} column
 # Análisis de la periodicidad del dataset
 df['df_time_diffs'] = df.index.to_series().diff().dt.total_seconds()
 
+st.header('Distribución de la periodicidad ')
+
 fig, ax = plt.subplots(figsize=(6.5,2))
 # Crear el histograma con KDE
 sns.histplot(df['df_time_diffs'].dropna(), kde=True, ax=ax)
@@ -159,7 +161,6 @@ ax.set_xlim(0, max_val)
 # Asignar nombres a los ejes y el título
 ax.set_xlabel('Diferencia entre observaciones (segundos)')
 ax.set_ylabel('Frecuencia')
-ax.set_title('Distribución de la periodicidad ')
 
 # Agregar texto sobre la mediana en el gráfico
 ax.axvline(mediana_dif, color='r', linestyle='--', label='Mediana: {:.2f} s ({:.2f} min)'.format(mediana_dif, mediana_minutos))
@@ -199,6 +200,7 @@ print(f'Tamaño conjunto de prueba: {len(test)}')
 
 st.dataframe(df2.head())
 
+st.header("Serie de tiempo para pasajeros")
 # Crear la figura
 fig = go.Figure()
 
@@ -209,7 +211,6 @@ fig.add_trace(go.Scatter(x=test.index, y=test['Pasaj'], mode='lines', name='Test
 
 # Configurar el layout de la figura
 fig.update_layout(
-    title="Serie de tiempo para pasajeros",
     xaxis_title="Fecha",
     yaxis_title="Pasajeros",
     legend_title="Partición:",
@@ -277,6 +278,9 @@ with col3:
     ax.set_title('Distribución de pasajeros por jornada')
     st.pyplot(fig)
 
+
+st.header('Autocorrelación')
+
 # Calcula los valores de autocorrelación
 acf_values = acf(df2.Pasaj, nlags=720)
 
@@ -287,7 +291,6 @@ ax.plot(acf_values)
 # Agrega una línea vertical en el lag 275
 ax.axvline(x=286, color='red', linestyle='--')
 ax.axvline(x=286*2, color='red', linestyle='--')
-ax.set_title('Autocorrelación')
 ax.set_xlabel('Lags')
 ax.set_ylabel('ACF')
 
@@ -360,7 +363,7 @@ metrica, predicciones = backtesting_forecaster(
                             show_progress      = True
                         )
 
-
+st.header("valores de prueba vs prediccion",)
 # Crear la figura
 fig = go.Figure()
 
@@ -372,7 +375,6 @@ fig.add_trace(trace2)
 
 # Configurar el layout de la figura
 fig.update_layout(
-    title="valores de prueba vs prediccion",
     xaxis_title="Date time",
     yaxis_title="Pasajeros",
     width=850,
