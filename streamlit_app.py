@@ -349,50 +349,7 @@ df2[['Dia_Dia_Semana', 'Dia_Fin_Semana']] = \
 exog_df = df2[['Vehiculo', 'Kms', 'Tiempo_viaje_s', 'Tiempo_muerto_s','hora', 'Jornada_Madrugada',
                'Jornada_Mañana', 'Jornada_Noche', 'Jornada_Tarde', 'Dia_Dia_Semana','Dia_Fin_Semana']]
 
-metrica, predicciones = backtesting_forecaster(
-                            forecaster         = forecaster,
-                            y                  = df2['Pasaj'],
-                            exog               = exog_df,
-                            steps              = lags,
-                            metric             = 'mean_absolute_error',
-                            initial_train_size = len(df2.loc[:fecha_fin_val]),
-                            refit              = False,
-                            n_jobs             = 'auto',
-                            verbose            = False,
-                            show_progress      = True
-                        )
 
-
-# Crear la figura
-fig = go.Figure()
-
-# Agregar las trazas para entrenamiento, validación y prueba
-trace1 = go.Scatter(x=test.index, y=test['Pasaj'], name="test", mode="lines")
-trace2 = go.Scatter(x=predicciones.index, y=predicciones['pred'], name="prediction", mode="lines")
-fig.add_trace(trace1)
-fig.add_trace(trace2)
-
-# Configurar el layout de la figura
-fig.update_layout(
-    xaxis_title="Date time",
-    yaxis_title="Pasajeros",
-    width=850,
-    height=400,
-    margin=dict(l=20, r=20, t=35, b=20),
-    legend=dict(
-        orientation="h",
-        yanchor="top",
-        y=1.1,
-        xanchor="left",
-        x=0.001,
-    )
-)
-
-# Mostrar el range slider en el eje X
-fig.update_xaxes(rangeslider_visible=True)
-
-# Mostrar el gráfico en Streamlit
-st.plotly_chart(fig)
 
     
 
