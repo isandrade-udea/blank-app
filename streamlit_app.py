@@ -312,7 +312,7 @@ params = {
     'verbose': -1
 }
 forecaster = ForecasterAutoreg(
-                regressor = XGBRegressor(random_state=15926, verbose=0),
+                regressor = XGBRegressor(**params),
                  #regressor = LGBMRegressor(random_state=15926, verbose=-1), # regresor
                  lags      = lags
              )
