@@ -298,7 +298,7 @@ st.pyplot(fig)
 # Asegúrate de que el índice tenga frecuencia
 df2 = df2.asfreq('300s')  # 300 segundos
 
-lags = 290
+lags = 300
 
 # Crear el forecaster
 params = {
@@ -382,7 +382,7 @@ fig.update_layout(
     legend=dict(
         orientation="h",
         yanchor="top",
-        y=1,
+        y=1.1,
         xanchor="left",
         x=0.001,
     )
