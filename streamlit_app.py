@@ -17,6 +17,9 @@ from statsmodels.tsa.stattools import acf
 from skforecast.ForecasterAutoreg import ForecasterAutoreg
 from xgboost import XGBRegressor
 from skforecast.model_selection import backtesting_forecaster
+#python -m pip install {package_name}
+
+#sns.set_theme(style="whitegrid", palette="pastel")
 
 st.title(":bus: Cootracovi ")
 st.write(
@@ -24,7 +27,7 @@ st.write(
 )
 
 # Cargar datos desde un enlace de GitHub
-st.header("Cargar Datos desde un Link de GitHub")
+st.subheader("Cargar Datos desde un Link de GitHub")
 url = st.text_input("Introduce la URL del archivo CSV en GitHub")
 
 def cargar_csv_desde_url(url):
@@ -45,7 +48,7 @@ df = cargar_csv_desde_url(url)
 
 # Mostrar las primeras filas del DataFrame
 st.write("Datos Cargados:")
-st.dataframe(df.head(8)) # Muestra las primeras filas del DataFrame
+st.dataframe(df) # Muestra las primeras filas del DataFrame
 
 #preprocesamiento
 
@@ -137,10 +140,10 @@ df = df[~df.index.duplicated(keep='first')]
 #Tamaño del dataset
 st.write(f"El tamaño del dataset es: {df.shape[0]} filas y {df.shape[1]} columnas.")
 
+st.subheader('Distribución de la periodicidad ')
+
 # Análisis de la periodicidad del dataset
 df['df_time_diffs'] = df.index.to_series().diff().dt.total_seconds()
-
-st.header('Distribución de la periodicidad ')
 
 fig, ax = plt.subplots(figsize=(6.5,2))
 # Crear el histograma con KDE
@@ -161,6 +164,7 @@ ax.set_xlim(0, max_val)
 # Asignar nombres a los ejes y el título
 ax.set_xlabel('Diferencia entre observaciones (segundos)')
 ax.set_ylabel('Frecuencia')
+#ax.set_title('Distribución de la periodicidad ')
 
 # Agregar texto sobre la mediana en el gráfico
 ax.axvline(mediana_dif, color='r', linestyle='--', label='Mediana: {:.2f} s ({:.2f} min)'.format(mediana_dif, mediana_minutos))
@@ -181,7 +185,7 @@ df2 = df2.rename(columns={'Fecha_Hora_Salida': 'Fecha_Hora'})
 
 train_size = 0.7  # 70% para entrenamiento
 val_size = 0.15   # 15% para validación
-test_size = 0.15  # 15% para prueba
+test_size = 0.25  # 15% para prueba
 
 # Calcular los índices para hacer la separación
 n = len(df2)
@@ -198,21 +202,25 @@ print(f'Tamaño conjunto de entrenamiento: {len(train)}')
 print(f'Tamaño conjunto de validación: {len(val)}')
 print(f'Tamaño conjunto de prueba: {len(test)}')
 
-st.dataframe(df2.head())
 
-st.header("Serie de tiempo para pasajeros")
+st.subheader("Series de tiempo ")
+
+# Crear un selector para elegir la columna
+columna_seleccionada = st.selectbox("Selecciona la columna a visualizar:", ['Pasaj', 'Kms', 'Tiempo_viaje_s', 'Tiempo_muerto_s'])
+
+
 # Crear la figura
 fig = go.Figure()
 
 # Agregar las trazas para entrenamiento, validación y prueba
-fig.add_trace(go.Scatter(x=train.index, y=train['Pasaj'], mode='lines', name='Train'))
-fig.add_trace(go.Scatter(x=val.index, y=val['Pasaj'], mode='lines', name='Validation'))
-fig.add_trace(go.Scatter(x=test.index, y=test['Pasaj'], mode='lines', name='Test'))
+fig.add_trace(go.Scatter(x=train.index, y=train[columna_seleccionada], mode='lines', name='Train'))
+fig.add_trace(go.Scatter(x=val.index, y=val[columna_seleccionada], mode='lines', name='Validation'))
+fig.add_trace(go.Scatter(x=test.index, y=test[columna_seleccionada], mode='lines', name='Test'))
 
 # Configurar el layout de la figura
 fig.update_layout(
     xaxis_title="Fecha",
-    yaxis_title="Pasajeros",
+    yaxis_title=columna_seleccionada,
     legend_title="Partición:",
     width=850,
     height=400,
@@ -232,54 +240,49 @@ fig.update_xaxes(rangeslider_visible=True)
 # Mostrar el gráfico en Streamlit
 st.plotly_chart(fig)
 
-st.header("Gráficos de estacionalidad")
+st.subheader("Gráficos de estacionalidad")
 
-col1, col2, col3 = st.columns(3)
+# Crear un selector para elegir la columna
+columna = st.selectbox("Selecciona la columna:", ['Pasaj', 'Kms', 'Tiempo_viaje_s', 'Tiempo_muerto_s'],index=0)
+
+col1, col2 = st.columns(2)
 
 # Agregar contenido en la primera columna
 with col1:
-    fig, ax = plt.subplots(figsize=(9.5, 5.5))
+    fig, ax = plt.subplots(figsize=(8.5, 4.5))
     df2['dia'] = df2.index.day_name()
-    df2.boxplot(column='Pasaj', by='dia', ax=ax,)
-    df2.groupby('dia')['Pasaj'].median().plot(style='o-', linewidth=0.8, ax=ax)
-    ax.set_ylabel('Pasajeros')
-    ax.set_title('Distribución pasajeros por dia')
+    medianas = df2.groupby('dia')[columna].median()
+    sns.boxplot(df2, x='dia',y=columna, ax=ax, order=medianas.index)
+    medianas.plot(style='o-',color='blue', markersize=8, label='Mediana',lw=0.5, ax=ax)
+    ax.set_ylabel(columna)
     st.pyplot(fig)
 
-# Agregar contenido en la segunda columna
+    # Agregar contenido en la segunda columna
 with col2:
-    fig, ax = plt.subplots(figsize=(9.5, 5.5))
-    df2['hora'] = df2.index.hour
-    df2.boxplot(column='Pasaj', by='hora', ax=ax,)
-    df2.groupby('hora')['Pasaj'].median().plot(style='o-', linewidth=0.8, ax=ax)
-    ax.set_ylabel('Pasajeros')
-    ax.set_title('Distribución pasajeros por hora')
-    st.pyplot(fig)
-
-with col3:
-    fig, ax = plt.subplots(figsize=(9.5, 5.5))
+    fig, ax = plt.subplots(figsize=(8.5, 4.5))
     # Orden para las jornadas
     jornada_order = ['Madrugada', 'Mañana', 'Tarde', 'Noche']
-    
+
     # Crear el boxplot con transparencia
-    sns.boxplot(x='Jornada', y='Pasaj', data=df, ax=ax, order=jornada_order,
-                boxprops=dict(facecolor='none', edgecolor='blue'),  # Transparente con bordes azules
-                medianprops=dict(color='green', lw=1),  # Línea de la mediana más gruesa y verde
-                whiskerprops=dict(color='blue'),  # Líneas de los bigotes
-                capprops=dict(color='blue'),  # Extremos de los bigotes
-                flierprops=dict(marker='o', color='red', alpha=0.5))  # Outliers en rojo y semi-transparentes
-    
+    sns.boxplot(x='Jornada', y=columna, data=df2, ax=ax, order=jornada_order)  # Outliers en rojo y semi-transparentes
+
     # Añadir la línea de mediana por jornada
-    medianas = df.groupby('Jornada',observed=False)['Pasaj'].median().reindex(jornada_order)
+    medianas = df2.groupby('Jornada',observed=False)[columna].median().reindex(jornada_order)
     ax.plot(jornada_order, medianas, 'o-', color='blue', markersize=8, label='Mediana',lw=0.5)  # Mediana como bola azul
-    
+
     # Etiquetas y título
-    ax.set_ylabel('Pasajeros')
-    ax.set_title('Distribución de pasajeros por jornada')
+    ax.set_ylabel(columna)
     st.pyplot(fig)
 
+fig, ax = plt.subplots(figsize=(8.5, 3))
+df2['hora'] = df2.index.hour
+medianas = df2.groupby('hora')[columna].median()
+sns.boxplot(df2, x='hora',y=columna, ax=ax, order=medianas.index)
+medianas.plot(style='o-', color='blue', markersize=8, label='Mediana',lw=0.5, ax=ax)
+ax.set_ylabel(columna)
+st.pyplot(fig)
 
-st.header('Autocorrelación')
+st.write("Autocorrelacion")
 
 # Calcula los valores de autocorrelación
 acf_values = acf(df2.Pasaj, nlags=720)
@@ -291,6 +294,7 @@ ax.plot(acf_values)
 # Agrega una línea vertical en el lag 275
 ax.axvline(x=286, color='red', linestyle='--')
 ax.axvline(x=286*2, color='red', linestyle='--')
+
 ax.set_xlabel('Lags')
 ax.set_ylabel('ACF')
 
@@ -299,9 +303,9 @@ st.pyplot(fig)
 # Asegúrate de que el índice tenga frecuencia
 df2 = df2.asfreq('300s')  # 300 segundos
 
-lags = 300
+lags = 290
 
-# Crear el forecaster
+# Crear el forecaster con los parámetros especificados
 params = {
     'n_estimators': 700,
     'max_depth': 11,
@@ -309,13 +313,17 @@ params = {
     'reg_alpha': 0.4,
     'reg_lambda': 0.4,
     'random_state': 15926,
-    'verbose': 0
+    'verbosity': 0  # Cambié 'verbose' a 'verbosity' para que coincida con la documentación de XGBoost
 }
+
+# Inicializar el regressor con los parámetros
+regressor = XGBRegressor(**params)
+
+# Crear el forecaster
 forecaster = ForecasterAutoreg(
-                    regressor = XGBRegressor(**params),#random_state=15926, verbose=0
-                    #regressor = LGBMRegressor(random_state=15926, verbose=0), # regresor
-                    lags      = lags
-             )
+    regressor=regressor,
+    lags=lags
+)
 
 # Entrena el forecaster
 fecha_fin_val = str(df2.index[val_end])
@@ -344,11 +352,11 @@ df2 = pd.concat([df2, dia_semana_fin_semana_dummy], axis=1)
 df2[['Dia_Dia_Semana', 'Dia_Fin_Semana']] = \
     df2[['Dia_Dia_Semana', 'Dia_Fin_Semana']].astype(int)
 
-#st.dataframe(df2.head())
 
 # Crear un DataFrame de variables exógenas
 exog_df = df2[['Vehiculo', 'Kms', 'Tiempo_viaje_s', 'Tiempo_muerto_s','hora', 'Jornada_Madrugada',
                'Jornada_Mañana', 'Jornada_Noche', 'Jornada_Tarde', 'Dia_Dia_Semana','Dia_Fin_Semana']]
+
 
 metrica, predicciones = backtesting_forecaster(
                             forecaster         = forecaster,
@@ -358,12 +366,11 @@ metrica, predicciones = backtesting_forecaster(
                             metric             = 'mean_absolute_error',
                             initial_train_size = len(df2.loc[:fecha_fin_val]),
                             refit              = False,
-                            n_jobs             = -1,#'auto'
+                            n_jobs             = 'auto',
                             verbose            = False,
                             show_progress      = True
                         )
 
-st.header("valores de prueba vs prediccion",)
 # Crear la figura
 fig = go.Figure()
 
@@ -395,17 +402,4 @@ fig.update_xaxes(rangeslider_visible=True)
 # Mostrar el gráfico en Streamlit
 st.plotly_chart(fig)
 
-st.header("Metrica:")
-st.write(f"El error absoluto medio es: {round(metrica['mean_absolute_error'][0],3)}")
-
-st.markdown("<h2>Referencias</h2>", unsafe_allow_html=True)  # Usando HTML para subtítulo
-referencias_html = """
-<ol>
-    <li> Ciencia de datos.  <a href="https://cienciadedatos.net/documentos/py29-forecasting-demanda-energia-electrica-python.html">link</a></li>
-    <li> Codificando bits. Autocorrelacion. <a href="https://www.youtube.com/watch?v=ejS5LKUThMw">link</a> .</li>
-    <li> Codificando bits. Preprocesamiento series tiempo. <a href="https://codificandobits.com/tutorial/pronosticos-series-de-tiempo-redes-lstm-1-preparacion-datos/">link</a> .</li>
-</ol>
-"""
-
-st.markdown(referencias_html, unsafe_allow_html=True)
-
+st.write(metrica['mean_absolute_error'][0])
