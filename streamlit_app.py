@@ -12,11 +12,17 @@ import skforecast
 import lightgbm
 import sklearn
 from lightgbm import LGBMRegressor
-from scipy.signal import find_peaks
 from statsmodels.tsa.stattools import acf
 from skforecast.ForecasterAutoreg import ForecasterAutoreg
 from xgboost import XGBRegressor
-from skforecast.model_selection import backtesting_forecaster
+from sklearn.metrics import mean_absolute_error
+from datetime import timedelta
+
+#from skforecast.model_selection import backtesting_forecaster
+
+# Borrar la caché en cada ejecución
+st.cache_data.clear()
+
 #python -m pip install {package_name}
 
 #sns.set_theme(style="whitegrid", palette="pastel")
@@ -184,8 +190,8 @@ df2 = df2.rename(columns={'Fecha_Hora_Salida': 'Fecha_Hora'})
 # Separación datos train-val-test 70% 15% 15%
 
 train_size = 0.7  # 70% para entrenamiento
-val_size = 0.15   # 15% para validación
-test_size = 0.25  # 15% para prueba
+val_size = 0.30   # 15% para validación
+test_size = 0  # 15% para prueba
 
 # Calcular los índices para hacer la separación
 n = len(df2)
@@ -201,7 +207,6 @@ test = df2[val_end:]  # Desde el 85% hasta el final
 print(f'Tamaño conjunto de entrenamiento: {len(train)}')
 print(f'Tamaño conjunto de validación: {len(val)}')
 print(f'Tamaño conjunto de prueba: {len(test)}')
-
 
 st.subheader("Series de tiempo ")
 
@@ -242,8 +247,12 @@ st.plotly_chart(fig)
 
 st.subheader("Gráficos de estacionalidad")
 
-# Crear un selector para elegir la columna
-columna = st.selectbox("Selecciona la columna:", ['Pasaj', 'Kms', 'Tiempo_viaje_s', 'Tiempo_muerto_s'],index=0)
+columna = st.selectbox(
+    "Selecciona la columna:",
+    ['Pasaj', 'Kms', 'Tiempo_viaje_s', 'Tiempo_muerto_s'],
+    index=0,
+    key='columna_seleccion')
+
 
 col1, col2 = st.columns(2)
 
@@ -253,7 +262,7 @@ with col1:
     df2['dia'] = df2.index.day_name()
     medianas = df2.groupby('dia')[columna].median()
     sns.boxplot(df2, x='dia',y=columna, ax=ax, order=medianas.index)
-    medianas.plot(style='o-',color='blue', markersize=8, label='Mediana',lw=0.5, ax=ax)
+    medianas.plot(style='o-',color='cyan', markersize=8, label='Mediana',lw=0.5, ax=ax)
     ax.set_ylabel(columna)
     st.pyplot(fig)
 
@@ -268,7 +277,7 @@ with col2:
 
     # Añadir la línea de mediana por jornada
     medianas = df2.groupby('Jornada',observed=False)[columna].median().reindex(jornada_order)
-    ax.plot(jornada_order, medianas, 'o-', color='blue', markersize=8, label='Mediana',lw=0.5)  # Mediana como bola azul
+    ax.plot(jornada_order, medianas, 'o-', color='cyan', markersize=8, label='Mediana',lw=0.5)  # Mediana como bola azul
 
     # Etiquetas y título
     ax.set_ylabel(columna)
@@ -278,14 +287,14 @@ fig, ax = plt.subplots(figsize=(8.5, 3))
 df2['hora'] = df2.index.hour
 medianas = df2.groupby('hora')[columna].median()
 sns.boxplot(df2, x='hora',y=columna, ax=ax, order=medianas.index)
-medianas.plot(style='o-', color='blue', markersize=8, label='Mediana',lw=0.5, ax=ax)
+medianas.plot(style='o-', color='cyan', markersize=8, label='Mediana',lw=0.5, ax=ax)
 ax.set_ylabel(columna)
 st.pyplot(fig)
 
-st.write("Autocorrelacion")
+st.subheader("Autocorrelacion")
 
 # Calcula los valores de autocorrelación
-acf_values = acf(df2.Pasaj, nlags=720)
+acf_values = acf(df2[columna], nlags=720)
 
 # Grafica la autocorrelación
 fig, ax = plt.subplots(figsize=(6.5,2))
@@ -300,24 +309,65 @@ ax.set_ylabel('ACF')
 
 st.pyplot(fig)
 
+st.subheader('Predicción')
+
+#Variables exogenas 
+
+# Crear un DataFrame de variables exógenas
+exog_df = df2[['hora']]
+
+# Extraer el día de la semana del índice 
+exog_df['dia_semana'] = exog_df.index.dayofweek  # Lunes = 0, Domingo = 6
+
+
+
 # Asegúrate de que el índice tenga frecuencia
 df2 = df2.asfreq('300s')  # 300 segundos
+exog_df = exog_df.asfreq('300s')
+train = train.asfreq('300s')
+val = val.asfreq('300s')
 
-lags = 290
+# Crear un selector para elegir la columna
+columna_modelo = st.selectbox(
+    "Selecciona la columna para el modelo:",
+    ['Pasaj', 'Tiempo_viaje_s', 'Tiempo_muerto_s'],
+    index=0,
+    key='columna_modelo_seleccion'
+)
+lags = 300
 
 # Crear el forecaster con los parámetros especificados
-params = {
-    'n_estimators': 700,
+
+parametros = {'Pasaj':{
+    'n_estimators': 650,
     'max_depth': 11,
-    'learning_rate': 0.0551314,
+    'learning_rate':  0.05513142057308684,
     'reg_alpha': 0.4,
     'reg_lambda': 0.4,
-    'random_state': 15926,
-    'verbosity': 0  # Cambié 'verbose' a 'verbosity' para que coincida con la documentación de XGBoost
-}
+    'verbosity': 0},
+    'Tiempo_viaje_s': {
+    'n_estimators': 150,
+    'max_depth': 7, 
+    'learning_rate': 0.44680119239545024,
+    'reg_alpha': 1, 
+    'reg_lambda': 0.5,
+    'verbosity': 0},
+    'Tiempo_muerto_s':{
+    'n_estimators': 150,
+    'max_depth': 7, 
+    'learning_rate': 0.44680119239545024,
+    'reg_alpha': 0.00589, 
+    'reg_lambda': 0,
+    'verbosity': 0}
+              }
+parametros_opt={
+    'tree_method': 'hist',
+    'max_bin': 128}
+
+params = {**parametros_opt, **parametros[columna_modelo]}
 
 # Inicializar el regressor con los parámetros
-regressor = XGBRegressor(**params)
+regressor = XGBRegressor(**params,n_jobs=-1)
 
 # Crear el forecaster
 forecaster = ForecasterAutoreg(
@@ -325,75 +375,60 @@ forecaster = ForecasterAutoreg(
     lags=lags
 )
 
-# Entrena el forecaster
-fecha_fin_val = str(df2.index[val_end])
-forecaster.fit(y=df2.loc[:fecha_fin_val, 'Pasaj'])
 
-# Crear variables dummy para la columna 'Jornada'
-jornada_dummy = pd.get_dummies(df2['Jornada'], prefix='Jornada')
+# Entrenar el forecaster con la serie temporal y las variables exógenas
+forecaster.fit(y=train[columna_modelo],
+               exog=exog_df.loc[train.index])
 
-# Concatenar las variables dummy al DataFrame original
-df2 = pd.concat([df2, jornada_dummy], axis=1)
+# Selector de fecha con límites
+fecha_fin_input = st.date_input(
+    f"Selecciona la fecha de finalización para la predicción (posterior a {train.index[-1]}):",
+    min_value=train.index[-1] + timedelta(days=1),  # Un día después del último valor en train
+    max_value=train.index[-1] + timedelta(days=30)  # Máximo un mes después
+)
 
-# Reemplazar True por 1 y False por 0 en las columnas Jornada
-df2[['Jornada_Madrugada', 'Jornada_Mañana', 'Jornada_Noche', 'Jornada_Tarde']] = \
-    df2[['Jornada_Madrugada', 'Jornada_Mañana', 'Jornada_Noche', 'Jornada_Tarde']].astype(int)
+# Añadir un selector de hora para la predicción
+hora_fin_input = st.time_input("Selecciona la hora de finalización para la predicción:")
 
-# Crear una nueva columna 'Dia_Semana_Fin_Semana'
-df2['Dia_Semana_Fin_Semana'] = np.where(df2.index.weekday < 5, 'Dia_Semana', 'Fin_Semana')
+# Crear la fecha y hora de finalización
+fecha_fin = pd.Timestamp.combine(fecha_fin_input, hora_fin_input)
 
-# Crear variables dummy para la nueva columna
-dia_semana_fin_semana_dummy = pd.get_dummies(df2['Dia_Semana_Fin_Semana'], prefix='Dia')
+# Obtener la última fecha de validación
+ultima_fecha_train = train.index[-1] + pd.Timedelta(minutes=5)  # Sumar 5 minutos
 
-# Concatenar las variables dummy al DataFrame original
-df2 = pd.concat([df2, dia_semana_fin_semana_dummy], axis=1)
+# Calcular la cantidad de pasos a predecir
+pasos_a_predecir = (fecha_fin - ultima_fecha_train).total_seconds() // 300  # 300 segundos = 5 minutos
 
-# Reemplazar True por 1 y False por 0 en las columnas Dia
-df2[['Dia_Dia_Semana', 'Dia_Fin_Semana']] = \
-    df2[['Dia_Dia_Semana', 'Dia_Fin_Semana']].astype(int)
+st.write(f"Número de pasos a predecir: {int(pasos_a_predecir)}")
 
+# Generar las fechas futuras
+fechas_futuras = pd.date_range(start=ultima_fecha_train, periods=int(pasos_a_predecir), freq='5T')
 
-# Crear un DataFrame de variables exógenas
-exog_df = df2[['Vehiculo', 'Kms', 'Tiempo_viaje_s', 'Tiempo_muerto_s','hora', 'Jornada_Madrugada',
-               'Jornada_Mañana', 'Jornada_Noche', 'Jornada_Tarde', 'Dia_Dia_Semana','Dia_Fin_Semana']]
+# Crear las variables exógenas
+exog_futuro = pd.DataFrame({
+    'hora': fechas_futuras.hour,
+    'dia_semana': fechas_futuras.dayofweek
+}, index=fechas_futuras)
 
+st.write("Variables exógenas para el horizonte futuro:")
+st.write(exog_futuro.head())
 
-metrica, predicciones = backtesting_forecaster(
-                            forecaster         = forecaster,
-                            y                  = df2['Pasaj'],
-                            exog               = exog_df,
-                            steps              = lags,
-                            metric             = 'mean_absolute_error',
-                            initial_train_size = len(df2.loc[:fecha_fin_val]),
-                            refit              = False,
-                            n_jobs             = 'auto',
-                            verbose            = False,
-                            show_progress      = True
-                        )
+y_pred_futuro = forecaster.predict(steps=int(pasos_a_predecir), exog=exog_futuro)
 
-# Crear la figura
 fig = go.Figure()
 
-# Agregar las trazas para entrenamiento, validación y prueba
-trace1 = go.Scatter(x=test.index, y=test['Pasaj'], name="test", mode="lines")
-trace2 = go.Scatter(x=predicciones.index, y=predicciones['pred'], name="prediction", mode="lines")
-fig.add_trace(trace1)
-fig.add_trace(trace2)
+# Trazas para los datos de validación y las predicciones futuras
+fig.add_trace(go.Scatter(x=val.index, y=val[columna_modelo], name="Validación", mode="lines"))
+fig.add_trace(go.Scatter(x=fechas_futuras, y=y_pred_futuro, name="Predicción Futuro", mode="lines"))
 
-# Configurar el layout de la figura
+# Configurar el layout
 fig.update_layout(
-    xaxis_title="Date time",
-    yaxis_title="Pasajeros",
+    xaxis_title="Fecha y hora",
+    yaxis_title=columna_modelo,
     width=850,
     height=400,
     margin=dict(l=20, r=20, t=35, b=20),
-    legend=dict(
-        orientation="h",
-        yanchor="top",
-        y=1,
-        xanchor="left",
-        x=0.001,
-    )
+    legend=dict(orientation="h", yanchor="top", y=1, xanchor="left", x=0.001)
 )
 
 # Mostrar el range slider en el eje X
@@ -402,4 +437,35 @@ fig.update_xaxes(rangeslider_visible=True)
 # Mostrar el gráfico en Streamlit
 st.plotly_chart(fig)
 
-st.write(metrica['mean_absolute_error'][0])
+# Calcular el error absoluto medio (MAE) entre la columna 'Pasaj' y las predicciones 'y_pred'
+mae = mean_absolute_error(val[columna_modelo], y_pred_futuro.loc[val.index])
+
+
+#st.write(f"Error absoluto medio (MAE): {round(mae,1)}")
+
+# Lógica para formatear el MAE
+if columna_modelo == 'Tiempo_viaje_s' or columna_modelo == 'Tiempo_muerto_s':
+    minutes, seconds = divmod(mae, 60)  # Obtener minutos y segundos
+    hours, minutes = divmod(minutes, 60)  # Obtener horas y minutos
+    
+    mensaje = (
+        f"en promedio, la diferencia entre las predicciones del modelo y los valores reales es de {round(mae, 1)} segundos. En h, min y s:  {int(hours)}:{int(minutes)}:{seconds:.0f}"
+        )
+else:
+    mensaje = (
+    f"en promedio, la diferencia entre las predicciones del modelo y los valores reales es de {round(mae, 0)} pasajeros por observación"
+    )
+
+# Mostrar el mensaje en una caja personalizada
+st.markdown(f"""
+<div style="
+    background-color: #e8f4f8; 
+    padding: 15px; 
+    border-radius: 8px; 
+    border: 1px solid #007BFF;
+    color: #00567a; 
+    font-size: 18px;
+    text-align: center;">
+    {mensaje}
+</div>
+""", unsafe_allow_html=True)
