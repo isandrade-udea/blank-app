@@ -399,8 +399,6 @@ ultima_fecha_train = train.index[-1] + pd.Timedelta(minutes=5)  # Sumar 5 minuto
 # Calcular la cantidad de pasos a predecir
 pasos_a_predecir = (fecha_fin - ultima_fecha_train).total_seconds() // 300  # 300 segundos = 5 minutos
 
-st.write(f"Número de pasos a predecir: {int(pasos_a_predecir)}")
-
 # Generar las fechas futuras
 fechas_futuras = pd.date_range(start=ultima_fecha_train, periods=int(pasos_a_predecir), freq='5T')
 
@@ -409,9 +407,6 @@ exog_futuro = pd.DataFrame({
     'hora': fechas_futuras.hour,
     'dia_semana': fechas_futuras.dayofweek
 }, index=fechas_futuras)
-
-st.write("Variables exógenas para el horizonte futuro:")
-st.write(exog_futuro.head())
 
 y_pred_futuro = forecaster.predict(steps=int(pasos_a_predecir), exog=exog_futuro)
 
