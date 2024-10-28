@@ -411,7 +411,7 @@ fig = go.Figure()
 
 # Trazas para los datos de validación y las predicciones futuras
 fig.add_trace(go.Scatter(x=val.index, y=val[columna_modelo], name="Validación", mode="lines"))
-fig.add_trace(go.Scatter(x=fechas_futuras, y=y_pred_futuro, name="Predicción Futuro", mode="lines"))
+fig.add_trace(go.Scatter(x=fechas_futuras, y=round(y_pred_futuro,0), name="Predicción Futuro", mode="lines"))
 
 # Configurar el layout
 fig.update_layout(
