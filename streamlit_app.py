@@ -1,17 +1,10 @@
 #librerias
 import streamlit as st
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib as mpl
 import seaborn as sns
 import plotly.graph_objects as go
-import plotly.io as pio
 # Modelado y Forecasting
-import skforecast
-import lightgbm
-import sklearn
-from lightgbm import LGBMRegressor
 from statsmodels.tsa.stattools import acf
 from skforecast.ForecasterAutoreg import ForecasterAutoreg
 from xgboost import XGBRegressor
@@ -344,27 +337,30 @@ parametros = {'Pasaj':{
     'learning_rate':  0.05513142057308684,
     'reg_alpha': 0.4,
     'reg_lambda': 0.4,
-    'verbosity': 0},
+    'verbosity': 0,
+    'tree_method': 'hist',
+    'max_bin': 80},
     'Tiempo_viaje_s': {
     'n_estimators': 150,
     'max_depth': 7, 
     'learning_rate': 0.44680119239545024,
     'reg_alpha': 1, 
     'reg_lambda': 0.5,
-    'verbosity': 0},
+    'verbosity': 0,
+    'tree_method': 'hist',
+    'max_bin': 130},
     'Tiempo_muerto_s':{
-    'n_estimators': 150,
-    'max_depth': 7, 
-    'learning_rate': 0.44680119239545024,
-    'reg_alpha': 0.00589, 
-    'reg_lambda': 0,
-    'verbosity': 0}
-              }
-parametros_opt={
+    'n_estimators': 450, 
+    'max_depth': 5, 
+    'learning_rate': 0.3655775100531092, 
+    'reg_alpha': 0.5, 
+    'reg_lambda': 0.3,
+    'verbosity': 0,
     'tree_method': 'hist',
     'max_bin': 128}
+              }
 
-params = {**parametros_opt, **parametros[columna_modelo]}
+params = parametros[columna_modelo]
 
 # Inicializar el regressor con los parámetros
 regressor = XGBRegressor(**params,n_jobs=-1)
@@ -398,6 +394,7 @@ ultima_fecha_train = train.index[-1] + pd.Timedelta(minutes=5)  # Sumar 5 minuto
 
 # Calcular la cantidad de pasos a predecir
 pasos_a_predecir = (fecha_fin - ultima_fecha_train).total_seconds() // 300  # 300 segundos = 5 minutos
+
 
 # Generar las fechas futuras
 fechas_futuras = pd.date_range(start=ultima_fecha_train, periods=int(pasos_a_predecir), freq='5T')
