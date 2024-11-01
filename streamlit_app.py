@@ -160,11 +160,28 @@ columna_seleccionada = st.selectbox(
         opciones_columnas, 
         index=opciones_columnas.index('Pasaj'))
 
+# Cálculos
+valor_medio = round(df[columna_seleccionada].mean(), 2)
+sesgo = round(df[columna_seleccionada].skew(), 2)
+percentil_25 = df[columna_seleccionada].quantile(0.25)
+percentil_75 = df[columna_seleccionada].quantile(0.75)
+iqr = percentil_75 - percentil_25
+
+# Cálculo de valores atípicos
+outliers = df[(df[columna_seleccionada] < (percentil_25 - 1.5 * iqr)) | 
+              (df[columna_seleccionada] > (percentil_75 + 1.5 * iqr))]
+porcentaje_atipicos = round((len(outliers) / len(df)) * 100, 2)
+
+
 col1, col2 = st.columns(2)
 
 # Opciones de columnas para graficar
 
 with col1:
+    
+    st.write(f"**Valor medio**: {valor_medio}")
+    st.write(f"**Sesgo**: {sesgo}")
+    st.write(f"**% de valores atípicos**: {porcentaje_atipicos}%")
     
     # Crear gráfico de barras
     fig, ax = plt.subplots()
