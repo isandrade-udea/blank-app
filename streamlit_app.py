@@ -145,6 +145,8 @@ st.write(f"El tamaño del dataset es: {df.shape[0]} filas y {df.shape[1]} column
 
 st.subheader('Distribución de la periodicidad ')
 
+st.write(df)
+
 # Análisis de la periodicidad del dataset
 df['df_time_diffs'] = df.index.to_series().diff().dt.total_seconds()
 
