@@ -10,6 +10,10 @@ from skforecast.ForecasterAutoreg import ForecasterAutoreg
 from xgboost import XGBRegressor
 from sklearn.metrics import mean_absolute_error
 from datetime import timedelta
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.metrics import r2_score
+from sklearn.model_selection import train_test_split
+
 
 #from skforecast.model_selection import backtesting_forecaster
 
@@ -143,6 +147,8 @@ st.subheader('Distribución de la periodicidad ')
 
 # Análisis de la periodicidad del dataset
 df['df_time_diffs'] = df.index.to_series().diff().dt.total_seconds()
+
+
 
 fig, ax = plt.subplots(figsize=(6.5,2))
 # Crear el histograma con KDE
@@ -304,6 +310,98 @@ st.pyplot(fig)
 
 st.subheader('Predicción')
 
+# Crear un selector para elegir la columna
+columna_modelo = st.selectbox(
+    "Selecciona la columna para el modelo:",
+    ['Pasaj', 'Tiempo_viaje_s', 'Tiempo_muerto_s'],
+    index=0,
+    key='columna_modelo_seleccion'
+)
+
+
+#decision tree
+st.write('##### DecisionTreeClassifier')
+
+
+# Separar variables predictoras (X) y variable objetivo (y)
+X = df2[['Dia', 'Hora']]
+y = df2[columna_modelo]
+
+# Dividir los datos en conjuntos de entrenamiento y prueba
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Crear y entrenar el árbol de decisión
+model = DecisionTreeRegressor(random_state=42)
+model.fit(X_train, y_train)
+
+# Predecir los valores para el conjunto de prueba
+y_pred = model.predict(X_test)
+
+# Evaluar el modelo
+mse =mean_absolute_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+st.write(f'Mean absolute Error: {mse:.2f}')
+
+# Lógica para formatear el MAE
+if columna_modelo == 'Tiempo_viaje_s' or columna_modelo == 'Tiempo_muerto_s':
+    hours, remainder = divmod(mse, 3600)  # Obtener horas y el resto
+    minutes, seconds = divmod(remainder, 60)  # Obtener minutos y segundos
+        
+    mensaje = (
+        f"en promedio, la diferencia entre las predicciones del modelo y los valores reales es de {round(mse, 1)} segundos. En h, min y s:  {int(hours)}:{int(minutes)}:{seconds:.0f}"
+        )
+else:
+    mensaje = (
+    f"en promedio, la diferencia entre las predicciones del modelo y los valores reales es de {round(mse)} pasajeros por observación"
+    )
+
+# Mostrar el mensaje en una caja personalizada
+st.markdown(f"""
+            <div style="
+            background-color: #e8f4f8; 
+            padding: 15px; 
+            border-radius: 8px; 
+            border: 1px solid #007BFF;
+            color: #00567a; 
+            font-size: 18px;
+            text-align: center;">
+            {mensaje}
+            </div>
+            """, unsafe_allow_html=True)
+
+
+# Selección del día de la semana
+dias_semana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+dia_seleccionado = st.selectbox('Selecciona el día de la semana:', dias_semana)
+
+# Mapeo del día seleccionado al número correspondiente
+dia_num = dias_semana.index(dia_seleccionado)
+
+# Selección de la hora
+hora_seleccionada = st.slider('Selecciona la hora del día:', min_value=df2['Hora'].min(), max_value=df2['Hora'].max(), value=12)
+
+
+# Botón para predecir
+if st.button('Predecir'):
+    # Realizar la predicción
+    prediccion = model.predict([[dia_num, hora_seleccionada]])
+    if columna_modelo == 'Tiempo_viaje_s' or columna_modelo == 'Tiempo_muerto_s':
+        hours, remainder = divmod(prediccion[0], 3600)  # Obtener horas y el resto
+        minutes, seconds = divmod(remainder, 60)  # Obtener minutos y segundos
+        
+        mensaje = (
+            f"La cantidad predicha de {columna_modelo} es: {int(prediccion[0])} segundos. En h, min y s:  {int(hours)}:{int(minutes)}:{seconds:.0f}"
+            )
+    else:
+        mensaje = (
+        f"La cantidad predicha de {columna_modelo} es: {int(prediccion[0])} pasajeros"
+        )
+    
+    st.success(mensaje)
+
+
+st.write('##### Forecasting')
 #Variables exogenas 
 
 # Crear un DataFrame de variables exógenas
@@ -320,19 +418,13 @@ exog_df = exog_df.asfreq('300s')
 train = train.asfreq('300s')
 val = val.asfreq('300s')
 
-# Crear un selector para elegir la columna
-columna_modelo = st.selectbox(
-    "Selecciona la columna para el modelo:",
-    ['Pasaj', 'Tiempo_viaje_s', 'Tiempo_muerto_s'],
-    index=0,
-    key='columna_modelo_seleccion'
-)
+
 lags = 300
 
 # Crear el forecaster con los parámetros especificados
 
 parametros = {'Pasaj':{
-    'n_estimators': 650,
+    'n_estimators': 550,
     'max_depth': 11,
     'learning_rate':  0.05513142057308684,
     'reg_alpha': 0.4,
@@ -461,3 +553,13 @@ st.markdown(f"""
     {mensaje}
 </div>
 """, unsafe_allow_html=True)
+
+st.markdown("<h3>Referencias</h3>", unsafe_allow_html=True)  # Usando HTML para subtítulo
+referencias_html = """
+<ol>
+    <li> Notebook con EDA.  <a href="https://colab.research.google.com/drive/1ngMe6wLYAksJzvvYI0VQEnUUjgh-cdz4?usp=sharing">link</a></li>
+    <li> Keller, C., Glück, F., Gerlach, C. F., & Schlegel, T. (2022). Investigating the potential of data science methods for sustainable public transport. Sustainability, 14(7), 4211. <a href="https://www.mdpi.com/2071-1050/14/7/4211">link</a> .</li>
+</ol>
+"""
+
+st.markdown(referencias_html, unsafe_allow_html=True)
