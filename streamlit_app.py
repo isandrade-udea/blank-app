@@ -147,23 +147,22 @@ st.subheader('Distribución de la periodicidad ')
 
 st.write(df)
 
-col1, col2 = st.columns(2)
-
-# Opciones de columnas para graficar
-    opciones_columnas = [
+opciones_columnas = [
         'Pasaj', 
         'Kms', 
         'Tiempo_viaje_s', 
         'Tiempo_muerto_s', 
-        'Vehiculo'
-    ]
+        'Vehiculo']
 
     # Selección de columna con 'tipo_negocio' como predeterminado
-    columna_seleccionada = st.selectbox(
+columna_seleccionada = st.selectbox(
         "Selecciona la columna para graficar:", 
         opciones_columnas, 
-        index=opciones_columnas.index('tipo_negocio')
-    )
+        index=opciones_columnas.index('tipo_negocio'))
+
+col1, col2 = st.columns(2)
+
+# Opciones de columnas para graficar
 
 with col1:
     
