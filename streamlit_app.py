@@ -427,11 +427,6 @@ st.markdown(f"""
             {mensaje}
             </div>
             """, unsafe_allow_html=True)
-fig, ax = plt.subplots(figsize=(20, 10))  # Ajusta el tamaño de la figura según sea necesario
-
-# Muestra el árbol de decisión
-plot_tree(model, feature_names=['Dia', 'Hora'], filled=True, fontsize=10, ax=ax)
-st.pyplot(fig)
 
 # Selección del día de la semana
 dias_semana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
