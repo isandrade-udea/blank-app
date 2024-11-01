@@ -171,18 +171,15 @@ iqr = percentil_75 - percentil_25
 outliers = df[(df[columna_seleccionada] < (percentil_25 - 1.5 * iqr)) | 
               (df[columna_seleccionada] > (percentil_75 + 1.5 * iqr))]
 porcentaje_atipicos = round((len(outliers) / len(df)) * 100, 2)
-
+st.write(f"**Valor medio**: {valor_medio}")
+st.write(f"**Sesgo**: {sesgo}")
+st.write(f"**% de valores atípicos**: {porcentaje_atipicos}%")
 
 col1, col2 = st.columns(2)
 
 # Opciones de columnas para graficar
 
-with col1:
-    
-    st.write(f"**Valor medio**: {valor_medio}")
-    st.write(f"**Sesgo**: {sesgo}")
-    st.write(f"**% de valores atípicos**: {porcentaje_atipicos}%")
-    
+with col1:    
     # Crear gráfico de barras
     fig, ax = plt.subplots()
     sns.histplot(df[columna_seleccionada], kde=True, ax=ax)
