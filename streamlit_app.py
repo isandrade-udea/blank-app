@@ -158,7 +158,7 @@ opciones_columnas = [
 columna_seleccionada = st.selectbox(
         "Selecciona la columna para graficar:", 
         opciones_columnas, 
-        index=opciones_columnas.index('tipo_negocio'))
+        index=opciones_columnas.index('Pasaj'))
 
 col1, col2 = st.columns(2)
 
