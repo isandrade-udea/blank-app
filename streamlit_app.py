@@ -147,10 +147,48 @@ st.subheader('Distribución de la periodicidad ')
 
 st.write(df)
 
+col1, col2 = st.columns(2)
+
+# Opciones de columnas para graficar
+    opciones_columnas = [
+        'Pasaj', 
+        'Kms', 
+        'Tiempo_viaje_s', 
+        'Tiempo_muerto_s', 
+        'Vehiculo'
+    ]
+
+    # Selección de columna con 'tipo_negocio' como predeterminado
+    columna_seleccionada = st.selectbox(
+        "Selecciona la columna para graficar:", 
+        opciones_columnas, 
+        index=opciones_columnas.index('tipo_negocio')
+    )
+
+with col1:
+    
+    # Crear gráfico de barras
+    fig, ax = plt.subplots()
+    sns.histplot(df[columna], kde=True, ax=ax)
+
+    ax.set_title(f'Distribución de {columna_seleccionada.replace("_", " ").capitalize()}')
+
+    # Mostrar gráfico en Streamlit
+    st.pyplot(fig)
+
+with col2:
+    # Crear gráfico de barras
+    fig, ax = plt.subplots()
+    sns.boxplot(x=df[columna], ax=ax)
+
+    ax.set_title(f'Boxplot de {columna_seleccionada.replace("_", " ").capitalize()}')
+
+    # Mostrar gráfico en Streamlit
+    st.pyplot(fig)
+
+
 # Análisis de la periodicidad del dataset
 df['df_time_diffs'] = df.index.to_series().diff().dt.total_seconds()
-
-
 
 fig, ax = plt.subplots(figsize=(6.5,2))
 # Crear el histograma con KDE
