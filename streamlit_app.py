@@ -146,8 +146,6 @@ st.write(f"El tamaño del dataset es: {df.shape[0]} filas y {df.shape[1]} column
 
 st.subheader('Distribuciones')
 
-st.write(df)
-
 opciones_columnas = [
         'Pasaj', 
         'Kms', 
