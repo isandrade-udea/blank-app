@@ -11,6 +11,7 @@ from xgboost import XGBRegressor
 from sklearn.metrics import mean_absolute_error
 from datetime import timedelta
 from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.tree import plot_tree
@@ -389,7 +390,7 @@ y = df2[columna_modelo]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
 # Crear y entrenar el árbol de decisión
-model = DecisionTreeRegressor(random_state=42)
+model = RandomForestRegressor(random_state=42, n_estimators=100)
 model.fit(X_train, y_train)
 
 # Predecir los valores para el conjunto de prueba
