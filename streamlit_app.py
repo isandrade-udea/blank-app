@@ -171,9 +171,7 @@ iqr = percentil_75 - percentil_25
 outliers = df[(df[columna_seleccionada] < (percentil_25 - 1.5 * iqr)) | 
               (df[columna_seleccionada] > (percentil_75 + 1.5 * iqr))]
 porcentaje_atipicos = round((len(outliers) / len(df)) * 100, 2)
-st.write(f"**Valor medio**: {valor_medio}")
-st.write(f"**Sesgo**: {sesgo}")
-st.write(f"**% de valores atípicos**: {porcentaje_atipicos}%")
+st.write(f"**Valor medio**: {valor_medio},    **Sesgo**: {sesgo},    **% de valores atípicos**: {porcentaje_atipicos}%")
 
 col1, col2 = st.columns(2)
 
