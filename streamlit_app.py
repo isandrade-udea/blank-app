@@ -168,8 +168,7 @@ with col1:
     
     # Crear gráfico de barras
     fig, ax = plt.subplots()
-    sns.histplot(df[columna], kde=True, ax=ax)
-
+    sns.histplot(df[columna_seleccionada], kde=True, ax=ax)
     ax.set_title(f'Distribución de {columna_seleccionada.replace("_", " ").capitalize()}')
 
     # Mostrar gráfico en Streamlit
@@ -178,7 +177,7 @@ with col1:
 with col2:
     # Crear gráfico de barras
     fig, ax = plt.subplots()
-    sns.boxplot(x=df[columna], ax=ax)
+    sns.boxplot(x=df[columna_seleccionada], ax=ax)
 
     ax.set_title(f'Boxplot de {columna_seleccionada.replace("_", " ").capitalize()}')
 
