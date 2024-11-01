@@ -207,7 +207,7 @@ ax.set_xlim(0, max_val)
 # Asignar nombres a los ejes y el título
 ax.set_xlabel('Diferencia entre observaciones (segundos)')
 ax.set_ylabel('Frecuencia')
-#ax.set_title('Distribución de la periodicidad ')
+ax.set_title('Periodicidad ')
 
 # Agregar texto sobre la mediana en el gráfico
 ax.axvline(mediana_dif, color='r', linestyle='--', label='Mediana: {:.2f} s ({:.2f} min)'.format(mediana_dif, mediana_minutos))
