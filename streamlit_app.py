@@ -143,7 +143,7 @@ df = df[~df.index.duplicated(keep='first')]
 #Tamaño del dataset
 st.write(f"El tamaño del dataset es: {df.shape[0]} filas y {df.shape[1]} columnas.")
 
-st.subheader('Distribución de la periodicidad ')
+st.subheader('Distribuciones')
 
 st.write(df)
 
