@@ -27,7 +27,7 @@ sns.set_palette(cootracovi_palette)
 #from skforecast.model_selection import backtesting_forecaster
 
 # Borrar la caché en cada ejecución
-st.cache_data.clear()
+#st.cache_data.clear()
 
 #python -m pip install {package_name}
 
