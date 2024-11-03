@@ -225,7 +225,7 @@ with col1:
     df['dia'] = df.index.day_name()
     medianas = df.groupby('dia')[columna_seleccionada].median()
     sns.boxplot(df, x='dia',y=columna_seleccionada, ax=ax, order=medianas.index)
-    medianas.plot(style='o-',color="#FFA07A", markersize=8, label='Mediana',lw=0.5, ax=ax)
+    medianas.plot(style='o-',color="cyan", markersize=8, label='Mediana',lw=0.5, ax=ax)
     ax.set_ylabel(columna_seleccionada)
     st.pyplot(fig)
 
@@ -240,7 +240,7 @@ with col2:
 
     # Añadir la línea de mediana por jornada
     medianas = df.groupby('Jornada',observed=False)[columna_seleccionada].median().reindex(jornada_order)
-    ax.plot(jornada_order, medianas, 'o-', color="#FFA07A", markersize=8, label='Mediana',lw=0.5)  # Mediana como bola azul
+    ax.plot(jornada_order, medianas, 'o-', color="cyan", markersize=8, label='Mediana',lw=0.5)  # Mediana como bola azul
 
     # Etiquetas y título
     ax.set_ylabel(columna_seleccionada)
@@ -256,7 +256,7 @@ fig, ax = plt.subplots(figsize=(8.5, 3))
 df2['hora'] = df2.index.hour
 medianas = df2.groupby('hora')[columna_seleccionada].median()
 sns.boxplot(df2, x='hora',y=columna_seleccionada, ax=ax, order=medianas.index)
-ax.plot(medianas.index, medianas.values, 'o-', color="#FFA07A", markersize=8, label='Mediana', lw=0.5)
+ax.plot(medianas.index, medianas.values, 'o-', color="cyan", markersize=8, label='Mediana', lw=0.5)
 ax.set_ylabel(columna_seleccionada)
 st.pyplot(fig)
 
