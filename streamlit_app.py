@@ -15,6 +15,14 @@ from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.tree import plot_tree
 
+# Definir una paleta de colores personalizada basada en la imagen
+cootracovi_palette = ["#1E90FF",  # Azul del fondo (tranquilidad y profesionalismo)
+                      "#4CAF50",  # Verde del logo (sostenibilidad y eco-conducción)
+                      "#FFD700",  # Amarillo o beige para cercanía y calidez
+                      "#FFA07A"]  # Naranja suave para dinamismo y energía
+
+# Establecer la paleta en Seaborn
+sns.set_palette(cootracovi_palette)
 
 #from skforecast.model_selection import backtesting_forecaster
 
@@ -142,10 +150,10 @@ df.sort_index(inplace=True)
 df = df[~df.index.duplicated(keep='first')]
 
 #Tamaño del dataset
-st.write(f"El tamaño del dataset es: {df.shape[0]} filas y {df.shape[1]} columnas.")
+st.write(f"El tamaño del dataset es: {df.shape[0]} filas y {df.shape[1]} columnas:")
+st.write(", ".join(df.columns))
 
-st.subheader('Distribuciones')
-
+st.subheader('Analisis de las variables')
 opciones_columnas = [
         'Pasaj', 
         'Kms', 
@@ -157,7 +165,9 @@ opciones_columnas = [
 columna_seleccionada = st.selectbox(
         "Selecciona la columna para graficar:", 
         opciones_columnas, 
-        index=opciones_columnas.index('Pasaj'))
+        index=opciones_columnas.index('Pasaj'),
+        key='columna_seleccionada')
+
 
 # Cálculos
 valor_medio = round(df[columna_seleccionada].mean(), 2)
@@ -171,20 +181,24 @@ outliers = df[(df[columna_seleccionada] < (percentil_25 - 1.5 * iqr)) |
               (df[columna_seleccionada] > (percentil_75 + 1.5 * iqr))]
 porcentaje_atipicos = round((len(outliers) / len(df)) * 100, 2)
 
+st.markdown("<h5>Valores estadisticos</h5>", unsafe_allow_html=True)
 col1, col2, col3 = st.columns(3)
 with col1:
-    st.write(f"**Valor medio**: {valor_medio}")
+    st.write(f"Valor medio: {valor_medio}")
 with col2:
-    st.write(f"**Sesgo**: {sesgo}")
+    st.write(f"Sesgo: {sesgo}")
 with col3:
-    st.write(f"**% de valores atípicos**: {porcentaje_atipicos}%")
+    st.write(f"% de valores atípicos: {porcentaje_atipicos}%")
 
+df['dia'] = df.index.day_name() 
+
+st.markdown("<h5>Distribuciones</h5>", unsafe_allow_html=True)
 col1, col2 = st.columns(2)
 
 # Opciones de columnas para graficar
 
 with col1:    
-    # Crear gráfico de barras
+
     fig, ax = plt.subplots()
     sns.histplot(df[columna_seleccionada], kde=True, ax=ax)
     ax.set_title(f'Distribución de {columna_seleccionada.replace("_", " ").capitalize()}')
@@ -193,54 +207,59 @@ with col1:
     st.pyplot(fig)
 
 with col2:
-    # Crear gráfico de barras
+
     fig, ax = plt.subplots()
     sns.boxplot(x=df[columna_seleccionada], ax=ax)
-
-    ax.set_title(f'Boxplot de {columna_seleccionada.replace("_", " ").capitalize()}')
+    ax.set_title(f'Distribución de {columna_seleccionada.replace("_", " ").capitalize()}')
 
     # Mostrar gráfico en Streamlit
     st.pyplot(fig)
 
+st.markdown("<h5>Gráficos de estacionalidad</h5>", unsafe_allow_html=True)
 
-# Análisis de la periodicidad del dataset
-df['df_time_diffs'] = df.index.to_series().diff().dt.total_seconds()
+col1, col2 = st.columns(2)
 
-fig, ax = plt.subplots(figsize=(6.5,2))
-# Crear el histograma con KDE
-sns.histplot(df['df_time_diffs'].dropna(), kde=True, ax=ax)
+# Agregar contenido en la primera columna
+with col1:
+    fig, ax = plt.subplots(figsize=(8.5, 4.5))
+    df['dia'] = df.index.day_name()
+    medianas = df.groupby('dia')[columna_seleccionada].median()
+    sns.boxplot(df, x='dia',y=columna_seleccionada, ax=ax, order=medianas.index)
+    medianas.plot(style='o-',color="#FFA07A", markersize=8, label='Mediana',lw=0.5, ax=ax)
+    ax.set_ylabel(columna_seleccionada)
+    st.pyplot(fig)
 
-# Obtener los valores mínimo y máximo de la columna 'df_time_diffs'
-min_val = df['df_time_diffs'].min()
-max_val = df['df_time_diffs'].max()
+    # Agregar contenido en la segunda columna
+with col2:
+    fig, ax = plt.subplots(figsize=(8.5, 4.5))
+    # Orden para las jornadas
+    jornada_order = ['Madrugada', 'Mañana', 'Tarde', 'Noche']
 
-# Calcular la mediana de las diferencias de tiempo
-mediana_dif = df['df_time_diffs'].median()
-# Convertir la mediana a minutos
-mediana_minutos = mediana_dif / 60
+    # Crear el boxplot con transparencia
+    sns.boxplot(x='Jornada', y=columna_seleccionada, data=df, ax=ax, order=jornada_order)  # Outliers en rojo y semi-transparentes
 
-# Configurar los límites del eje X
-ax.set_xlim(0, max_val)
+    # Añadir la línea de mediana por jornada
+    medianas = df.groupby('Jornada',observed=False)[columna_seleccionada].median().reindex(jornada_order)
+    ax.plot(jornada_order, medianas, 'o-', color="#FFA07A", markersize=8, label='Mediana',lw=0.5)  # Mediana como bola azul
 
-# Asignar nombres a los ejes y el título
-ax.set_xlabel('Diferencia entre observaciones (segundos)')
-ax.set_ylabel('Frecuencia')
-ax.set_title('Periodicidad ')
+    # Etiquetas y título
+    ax.set_ylabel(columna_seleccionada)
+    st.pyplot(fig)
 
-# Agregar texto sobre la mediana en el gráfico
-ax.axvline(mediana_dif, color='r', linestyle='--', label='Mediana: {:.2f} s ({:.2f} min)'.format(mediana_dif, mediana_minutos))
-ax.legend()
-
-# Mostrar el gráfico en Streamlit
-st.pyplot(fig)
-
-# Mensaje sobre la mediana
-st.write(f"La frecuencia mediana es de {mediana_dif:.2f} segundos, que son {mediana_minutos:.2f} minutos. La vamos a tomar como 5 minutos.")
 
 # Cambiar la frecuencia a 5 minutos ('5T') y rellenar valores faltantes con bfill
 df2 = df.asfreq(freq='5T', method='bfill')
 
 df2 = df2.rename(columns={'Fecha_Hora_Salida': 'Fecha_Hora'})
+
+fig, ax = plt.subplots(figsize=(8.5, 3))
+df2['hora'] = df2.index.hour
+medianas = df2.groupby('hora')[columna_seleccionada].median()
+sns.boxplot(df2, x='hora',y=columna_seleccionada, ax=ax, order=medianas.index)
+ax.plot(medianas.index, medianas.values, 'o-', color="#FFA07A", markersize=8, label='Mediana', lw=0.5)
+ax.set_ylabel(columna_seleccionada)
+st.pyplot(fig)
+
 
 # Separación datos train-val-test 70% 15% 15%
 
@@ -263,10 +282,7 @@ print(f'Tamaño conjunto de entrenamiento: {len(train)}')
 print(f'Tamaño conjunto de validación: {len(val)}')
 print(f'Tamaño conjunto de prueba: {len(test)}')
 
-st.subheader("Series de tiempo ")
-
-# Crear un selector para elegir la columna
-columna_seleccionada = st.selectbox("Selecciona la columna a visualizar:", ['Pasaj', 'Kms', 'Tiempo_viaje_s', 'Tiempo_muerto_s'])
+st.markdown("<h5>Series de tiempo</h5>", unsafe_allow_html=True)
 
 
 # Crear la figura
@@ -300,56 +316,10 @@ fig.update_xaxes(rangeslider_visible=True)
 # Mostrar el gráfico en Streamlit
 st.plotly_chart(fig)
 
-st.subheader("Gráficos de estacionalidad")
-
-columna = st.selectbox(
-    "Selecciona la columna:",
-    ['Pasaj', 'Kms', 'Tiempo_viaje_s', 'Tiempo_muerto_s'],
-    index=0,
-    key='columna_seleccion')
-
-
-col1, col2 = st.columns(2)
-
-# Agregar contenido en la primera columna
-with col1:
-    fig, ax = plt.subplots(figsize=(8.5, 4.5))
-    df2['dia'] = df2.index.day_name()
-    medianas = df2.groupby('dia')[columna].median()
-    sns.boxplot(df2, x='dia',y=columna, ax=ax, order=medianas.index)
-    medianas.plot(style='o-',color='cyan', markersize=8, label='Mediana',lw=0.5, ax=ax)
-    ax.set_ylabel(columna)
-    st.pyplot(fig)
-
-    # Agregar contenido en la segunda columna
-with col2:
-    fig, ax = plt.subplots(figsize=(8.5, 4.5))
-    # Orden para las jornadas
-    jornada_order = ['Madrugada', 'Mañana', 'Tarde', 'Noche']
-
-    # Crear el boxplot con transparencia
-    sns.boxplot(x='Jornada', y=columna, data=df2, ax=ax, order=jornada_order)  # Outliers en rojo y semi-transparentes
-
-    # Añadir la línea de mediana por jornada
-    medianas = df2.groupby('Jornada',observed=False)[columna].median().reindex(jornada_order)
-    ax.plot(jornada_order, medianas, 'o-', color='cyan', markersize=8, label='Mediana',lw=0.5)  # Mediana como bola azul
-
-    # Etiquetas y título
-    ax.set_ylabel(columna)
-    st.pyplot(fig)
-
-fig, ax = plt.subplots(figsize=(8.5, 3))
-df2['hora'] = df2.index.hour
-medianas = df2.groupby('hora')[columna].median()
-sns.boxplot(df2, x='hora',y=columna, ax=ax, order=medianas.index)
-medianas.plot(style='o-', color='cyan', markersize=8, label='Mediana',lw=0.5, ax=ax)
-ax.set_ylabel(columna)
-st.pyplot(fig)
-
-st.subheader("Autocorrelacion")
+st.markdown("<h5>Autocorrelacion</h5>", unsafe_allow_html=True)
 
 # Calcula los valores de autocorrelación
-acf_values = acf(df2[columna], nlags=720)
+acf_values = acf(df2[columna_seleccionada], nlags=720)
 
 # Grafica la autocorrelación
 fig, ax = plt.subplots(figsize=(6.5,2))
@@ -364,7 +334,42 @@ ax.set_ylabel('ACF')
 
 st.pyplot(fig)
 
-st.subheader('Predicción')
+st.subheader('Análisis de la periodicidad del dataset')
+# Análisis de la periodicidad del dataset
+df['df_time_diffs'] = df.index.to_series().diff().dt.total_seconds()
+
+fig, ax = plt.subplots(figsize=(6.5,2))
+# Crear el histograma con KDE
+sns.histplot(df['df_time_diffs'].dropna(), kde=True, ax=ax)
+
+# Obtener los valores mínimo y máximo de la columna 'df_time_diffs'
+min_val = df['df_time_diffs'].min()
+max_val = df['df_time_diffs'].max()
+
+# Calcular la mediana de las diferencias de tiempo
+mediana_dif = df['df_time_diffs'].median()
+# Convertir la mediana a minutos
+mediana_minutos = mediana_dif / 60
+
+# Configurar los límites del eje X
+ax.set_xlim(0, max_val)
+
+# Asignar nombres a los ejes y el título
+ax.set_xlabel('Diferencia entre observaciones (segundos)')
+ax.set_ylabel('Frecuencia')
+#ax.set_title('Periodicidad ')
+
+# Agregar texto sobre la mediana en el gráfico
+ax.axvline(mediana_dif, color='r', linestyle='--', label='Mediana: {:.2f} s ({:.2f} min)'.format(mediana_dif, mediana_minutos))
+ax.legend()
+
+# Mostrar el gráfico en Streamlit
+st.pyplot(fig)
+
+# Mensaje sobre la mediana
+st.write(f"La frecuencia mediana es de {mediana_dif:.2f} segundos, que son {mediana_minutos:.2f} minutos. La vamos a tomar como 5 minutos.")
+
+st.subheader('Modelos de Machine Learning')
 
 # Crear un selector para elegir la columna
 columna_modelo = st.selectbox(
@@ -377,6 +382,7 @@ columna_modelo = st.selectbox(
 
 #decision tree
 st.write('##### DecisionTreeClassifier')
+st.write('El modelo de Árbol de Decisión es un clasificador supervisado que utiliza una estructura de árbol para tomar decisiones basadas en reglas de decisión derivadas de los datos de entrenamiento.')
 
 
 # Separar variables predictoras (X) y variable objetivo (y)
@@ -397,7 +403,6 @@ y_pred = model.predict(X_test)
 mse =mean_absolute_error(y_test, y_pred)
 r2 = r2_score(y_test, y_pred)
 
-st.write(f'Mean absolute Error: {mse:.2f}')
 
 # Lógica para formatear el MAE
 if columna_modelo == 'Tiempo_viaje_s' or columna_modelo == 'Tiempo_muerto_s':
@@ -405,26 +410,14 @@ if columna_modelo == 'Tiempo_viaje_s' or columna_modelo == 'Tiempo_muerto_s':
     minutes, seconds = divmod(remainder, 60)  # Obtener minutos y segundos
         
     mensaje = (
-        f"en promedio, la diferencia entre las predicciones del modelo y los valores reales es de {round(mse, 1)} segundos. En h, min y s:  {int(hours)}:{int(minutes)}:{seconds:.0f}"
+        f"Para este modelo en promedio, la diferencia entre las predicciones del modelo y los valores reales es de {round(mse, 1)} segundos. En h, min y s:  {int(hours)}:{int(minutes)}:{seconds:.0f}"
         )
 else:
     mensaje = (
-    f"en promedio, la diferencia entre las predicciones del modelo y los valores reales es de {round(mse)} pasajeros por observación"
+    f"Para este modelo en promedio, la diferencia entre las predicciones del modelo y los valores reales es de {round(mse)} pasajeros por observación"
     )
 
-# Mostrar el mensaje en una caja personalizada
-st.markdown(f"""
-            <div style="
-            background-color: #e8f4f8; 
-            padding: 15px; 
-            border-radius: 8px; 
-            border: 1px solid #007BFF;
-            color: #00567a; 
-            font-size: 18px;
-            text-align: center;">
-            {mensaje}
-            </div>
-            """, unsafe_allow_html=True)
+st.write(mensaje)
 
 # Selección del día de la semana
 dias_semana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
@@ -458,6 +451,8 @@ if st.button('Predecir'):
 
 st.write('##### Forecasting')
 #Variables exogenas 
+
+st.write('Los modelos de pronóstico (forecasting) se utilizan para predecir valores futuros de una variable en función de patrones y tendencias observados en datos históricos.')
 
 # Crear un DataFrame de variables exógenas
 exog_df = df2[['hora']]
@@ -588,26 +583,14 @@ if columna_modelo == 'Tiempo_viaje_s' or columna_modelo == 'Tiempo_muerto_s':
     hours, minutes = divmod(minutes, 60)  # Obtener horas y minutos
     
     mensaje = (
-        f"en promedio, la diferencia entre las predicciones del modelo y los valores reales es de {round(mae, 1)} segundos. En h, min y s:  {int(hours)}:{int(minutes)}:{seconds:.0f}"
+        f"Para este modelo en promedio, la diferencia entre las predicciones del modelo y los valores reales es de {round(mae, 1)} segundos. En h, min y s:  {int(hours)}:{int(minutes)}:{seconds:.0f}"
         )
 else:
     mensaje = (
-    f"en promedio, la diferencia entre las predicciones del modelo y los valores reales es de {round(mae, 0)} pasajeros por observación"
+    f"Para este modelo en promedio, la diferencia entre las predicciones del modelo y los valores reales es de {round(mae, 0)} pasajeros por observación"
     )
 
-# Mostrar el mensaje en una caja personalizada
-st.markdown(f"""
-<div style="
-    background-color: #e8f4f8; 
-    padding: 15px; 
-    border-radius: 8px; 
-    border: 1px solid #007BFF;
-    color: #00567a; 
-    font-size: 18px;
-    text-align: center;">
-    {mensaje}
-</div>
-""", unsafe_allow_html=True)
+st.write(mensaje)
 
 st.markdown("<h3>Referencias</h3>", unsafe_allow_html=True)  # Usando HTML para subtítulo
 referencias_html = """
