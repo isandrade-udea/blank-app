@@ -150,7 +150,7 @@ df.sort_index(inplace=True)
 df = df[~df.index.duplicated(keep='first')]
 
 #Tamaño del dataset
-st.write(f"El tamaño del dataset es: {df.shape[0]} filas y {df.shape[1]} columnas:")
+st.write(f"El tamaño del dataset despues de el preprocesamiento es de: {df.shape[0]} filas y {df.shape[1]} columnas:")
 st.write(", ".join(df.columns))
 
 st.subheader('Analisis de las variables')
@@ -201,8 +201,11 @@ with col1:
 
     fig, ax = plt.subplots()
     sns.histplot(df[columna_seleccionada], kde=True, ax=ax)
-    ax.set_title(f'Distribución de {columna_seleccionada.replace("_", " ").capitalize()}')
-
+    ax.set_title(f'Distribución de {columna_seleccionada.replace("_", " ").capitalize()}', fontsize=18)
+    ax.set_xlabel(columna_seleccionada, fontsize=16)  # Etiqueta del eje x más grande
+    ax.set_ylabel('Frecuencia', fontsize=16)
+    # Ajustar el tamaño de los ticks
+    ax.tick_params(axis='both', labelsize=14)
     # Mostrar gráfico en Streamlit
     st.pyplot(fig)
 
@@ -210,7 +213,10 @@ with col2:
 
     fig, ax = plt.subplots()
     sns.boxplot(x=df[columna_seleccionada], ax=ax)
-    ax.set_title(f'Distribución de {columna_seleccionada.replace("_", " ").capitalize()}')
+    ax.set_title(f'Distribución de {columna_seleccionada.replace("_", " ").capitalize()}', fontsize=18)
+    ax.set_xlabel(columna_seleccionada, fontsize=16)  # Etiqueta del eje x más grande
+    # Ajustar el tamaño de los ticks
+    ax.tick_params(axis='both', labelsize=14)
 
     # Mostrar gráfico en Streamlit
     st.pyplot(fig)
@@ -226,7 +232,10 @@ with col1:
     medianas = df.groupby('dia')[columna_seleccionada].median()
     sns.boxplot(df, x='dia',y=columna_seleccionada, ax=ax, order=medianas.index)
     medianas.plot(style='o-',color="cyan", markersize=8, label='Mediana',lw=0.5, ax=ax)
-    ax.set_ylabel(columna_seleccionada)
+    ax.set_ylabel(columna_seleccionada, fontsize=16)
+    ax.set_xlabel('dia', fontsize=16) 
+    # Ajustar el tamaño de los ticks
+    ax.tick_params(axis='both', labelsize=14)
     st.pyplot(fig)
 
     # Agregar contenido en la segunda columna
@@ -243,7 +252,10 @@ with col2:
     ax.plot(jornada_order, medianas, 'o-', color="cyan", markersize=8, label='Mediana',lw=0.5)  # Mediana como bola azul
 
     # Etiquetas y título
-    ax.set_ylabel(columna_seleccionada)
+    ax.set_ylabel(columna_seleccionada, fontsize=16)
+    ax.set_xlabel('jornada', fontsize=16) 
+    # Ajustar el tamaño de los ticks
+    ax.tick_params(axis='both', labelsize=14)
     st.pyplot(fig)
 
 
@@ -257,7 +269,10 @@ df2['hora'] = df2.index.hour
 medianas = df2.groupby('hora')[columna_seleccionada].median()
 sns.boxplot(df2, x='hora',y=columna_seleccionada, ax=ax, order=medianas.index)
 ax.plot(medianas.index, medianas.values, 'o-', color="cyan", markersize=8, label='Mediana', lw=0.5)
-ax.set_ylabel(columna_seleccionada)
+ax.set_ylabel(columna_seleccionada, fontsize=12)
+ax.set_xlabel('hora', fontsize=12) 
+# Ajustar el tamaño de los ticks
+ax.tick_params(axis='both', labelsize=10)
 st.pyplot(fig)
 
 
@@ -289,9 +304,9 @@ st.markdown("<h5>Series de tiempo</h5>", unsafe_allow_html=True)
 fig = go.Figure()
 
 # Agregar las trazas para entrenamiento, validación y prueba
-fig.add_trace(go.Scatter(x=train.index, y=train[columna_seleccionada], mode='lines', name='Train'))
-fig.add_trace(go.Scatter(x=val.index, y=val[columna_seleccionada], mode='lines', name='Validation'))
-fig.add_trace(go.Scatter(x=test.index, y=test[columna_seleccionada], mode='lines', name='Test'))
+fig.add_trace(go.Scatter(x=df.index, y=df[columna_seleccionada], mode='lines', name='Train'))
+#fig.add_trace(go.Scatter(x=val.index, y=val[columna_seleccionada], mode='lines', name='Validation'))
+#fig.add_trace(go.Scatter(x=test.index, y=test[columna_seleccionada], mode='lines', name='Test'))
 
 # Configurar el layout de la figura
 fig.update_layout(
@@ -316,50 +331,41 @@ fig.update_xaxes(rangeslider_visible=True)
 # Mostrar el gráfico en Streamlit
 st.plotly_chart(fig)
 
-st.markdown("<h5>Autocorrelacion</h5>", unsafe_allow_html=True)
-
-# Calcula los valores de autocorrelación
-acf_values = acf(df2[columna_seleccionada], nlags=720)
-
-# Grafica la autocorrelación
-fig, ax = plt.subplots(figsize=(6.5,2))
-ax.plot(acf_values)
-
-# Agrega una línea vertical en el lag 275
-ax.axvline(x=286, color='red', linestyle='--')
-ax.axvline(x=286*2, color='red', linestyle='--')
-
-ax.set_xlabel('Lags')
-ax.set_ylabel('ACF')
-
-st.pyplot(fig)
 
 st.subheader('Análisis de la periodicidad del dataset')
 # Análisis de la periodicidad del dataset
 df['df_time_diffs'] = df.index.to_series().diff().dt.total_seconds()
 
-fig, ax = plt.subplots(figsize=(6.5,2))
-# Crear el histograma con KDE
-sns.histplot(df['df_time_diffs'].dropna(), kde=True, ax=ax)
-
 # Obtener los valores mínimo y máximo de la columna 'df_time_diffs'
 min_val = df['df_time_diffs'].min()
 max_val = df['df_time_diffs'].max()
+
+# Configurar los límites del zoom mediante un slider en Streamlit
+zoom_min, zoom_max = st.slider(
+    'Selecciona el rango para hacer zoom en el eje X',
+    min_value=float(min_val), max_value=float(max_val),
+    value=(float(min_val), float(max_val / 4))
+)
+
+# Configurar el tamaño de la figura
+fig, ax = plt.subplots(figsize=(6.5, 2))
+
+# Crear el histograma con KDE
+sns.histplot(df['df_time_diffs'].dropna(), kde=True, ax=ax)
 
 # Calcular la mediana de las diferencias de tiempo
 mediana_dif = df['df_time_diffs'].median()
 # Convertir la mediana a minutos
 mediana_minutos = mediana_dif / 60
 
-# Configurar los límites del eje X
-ax.set_xlim(0, max_val)
+# Configurar los límites del eje X basados en el slider
+ax.set_xlim(zoom_min, zoom_max)
 
 # Asignar nombres a los ejes y el título
 ax.set_xlabel('Diferencia entre observaciones (segundos)')
 ax.set_ylabel('Frecuencia')
-#ax.set_title('Periodicidad ')
 
-# Agregar texto sobre la mediana en el gráfico
+# Agregar una línea vertical en la mediana
 ax.axvline(mediana_dif, color='r', linestyle='--', label='Mediana: {:.2f} s ({:.2f} min)'.format(mediana_dif, mediana_minutos))
 ax.legend()
 
@@ -380,14 +386,15 @@ columna_modelo = st.selectbox(
 )
 
 
+
 #decision tree
 st.write('##### DecisionTreeClassifier')
 st.write('El modelo de Árbol de Decisión es un clasificador supervisado que utiliza una estructura de árbol para tomar decisiones basadas en reglas de decisión derivadas de los datos de entrenamiento.')
 
 
 # Separar variables predictoras (X) y variable objetivo (y)
-X = df2[['Dia', 'Hora']]
-y = df2[columna_modelo]
+X = df[['Dia', 'Hora']]
+y = df[columna_modelo]
 
 # Dividir los datos en conjuntos de entrenamiento y prueba
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
@@ -402,7 +409,6 @@ y_pred = model.predict(X_test)
 # Evaluar el modelo
 mse =mean_absolute_error(y_test, y_pred)
 r2 = r2_score(y_test, y_pred)
-
 
 # Lógica para formatear el MAE
 if columna_modelo == 'Tiempo_viaje_s' or columna_modelo == 'Tiempo_muerto_s':
