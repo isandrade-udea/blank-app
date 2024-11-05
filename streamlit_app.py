@@ -197,9 +197,8 @@ col1, col2 = st.columns(2)
 
 # Opciones de columnas para graficar
 
-with col1:    
-
-    fig, ax = plt.subplots()
+if columna_seleccionada =='Vehiculo':
+    fig, ax = plt.subplots(figsize=(8, 4))
     sns.histplot(df[columna_seleccionada], kde=True, ax=ax)
     ax.set_title(f'Distribución de {columna_seleccionada.replace("_", " ").capitalize()}', fontsize=18)
     ax.set_xlabel(columna_seleccionada, fontsize=16)  # Etiqueta del eje x más grande
@@ -209,54 +208,46 @@ with col1:
     # Mostrar gráfico en Streamlit
     st.pyplot(fig)
 
-with col2:
+    # Crear una tabla pivote que cuente los viajes por cada vehículo y día de la semana
+    pivot_table = df.pivot_table(index='dia', columns='Vehiculo', aggfunc='size', fill_value=0)
 
-    fig, ax = plt.subplots()
-    sns.boxplot(x=df[columna_seleccionada], ax=ax)
-    ax.set_title(f'Distribución de {columna_seleccionada.replace("_", " ").capitalize()}', fontsize=18)
-    ax.set_xlabel(columna_seleccionada, fontsize=16)  # Etiqueta del eje x más grande
-    # Ajustar el tamaño de los ticks
-    ax.tick_params(axis='both', labelsize=14)
-
-    # Mostrar gráfico en Streamlit
-    st.pyplot(fig)
-
-st.markdown("<h5>Gráficos de estacionalidad</h5>", unsafe_allow_html=True)
-
-col1, col2 = st.columns(2)
-
-# Agregar contenido en la primera columna
-with col1:
-    fig, ax = plt.subplots(figsize=(8.5, 4.5))
-    df['dia'] = df.index.day_name()
-    medianas = df.groupby('dia')[columna_seleccionada].median()
-    sns.boxplot(df, x='dia',y=columna_seleccionada, ax=ax, order=medianas.index)
-    medianas.plot(style='o-',color="cyan", markersize=8, label='Mediana',lw=0.5, ax=ax)
-    ax.set_ylabel(columna_seleccionada, fontsize=16)
-    ax.set_xlabel('dia', fontsize=16) 
-    # Ajustar el tamaño de los ticks
-    ax.tick_params(axis='both', labelsize=14)
-    st.pyplot(fig)
-
-    # Agregar contenido en la segunda columna
-with col2:
-    fig, ax = plt.subplots(figsize=(8.5, 4.5))
-    # Orden para las jornadas
-    jornada_order = ['Madrugada', 'Mañana', 'Tarde', 'Noche']
-
-    # Crear el boxplot con transparencia
-    sns.boxplot(x='Jornada', y=columna_seleccionada, data=df, ax=ax, order=jornada_order)  # Outliers en rojo y semi-transparentes
-
-    # Añadir la línea de mediana por jornada
-    medianas = df.groupby('Jornada',observed=False)[columna_seleccionada].median().reindex(jornada_order)
-    ax.plot(jornada_order, medianas, 'o-', color="cyan", markersize=8, label='Mediana',lw=0.5)  # Mediana como bola azul
+    # Configuración del mapa de calor
+    plt.figure(figsize=(18, 6))
+    heatmap = sns.heatmap(pivot_table, annot=True, fmt="d", cmap="YlGnBu", cbar_kws={'label': 'Cantidad de viajes'})
 
     # Etiquetas y título
-    ax.set_ylabel(columna_seleccionada, fontsize=16)
-    ax.set_xlabel('jornada', fontsize=16) 
-    # Ajustar el tamaño de los ticks
-    ax.tick_params(axis='both', labelsize=14)
-    st.pyplot(fig)
+    plt.ylabel('Día de la semana',fontsize=16)
+    plt.xlabel('Vehículo',fontsize=16)
+    plt.title('Cantidad de viajes por vehículo y día de la semana', fontsize=18)
+    heatmap.set_xticklabels(heatmap.get_xticklabels(), fontsize=14, rotation=0)
+    heatmap.set_yticklabels(heatmap.get_yticklabels(), fontsize=14, rotation=0)
+    # Mostrar el heatmap en Streamlit
+    st.pyplot(plt)
+
+else:
+    with col1:    
+
+        fig, ax = plt.subplots()
+        sns.histplot(df[columna_seleccionada], kde=True, ax=ax)
+        ax.set_title(f'Distribución de {columna_seleccionada.replace("_", " ").capitalize()}', fontsize=18)
+        ax.set_xlabel(columna_seleccionada, fontsize=16)  # Etiqueta del eje x más grande
+        ax.set_ylabel('Frecuencia', fontsize=16)
+        # Ajustar el tamaño de los ticks
+        ax.tick_params(axis='both', labelsize=14)
+        # Mostrar gráfico en Streamlit
+        st.pyplot(fig)
+
+    with col2:
+
+        fig, ax = plt.subplots()
+        sns.boxplot(x=df[columna_seleccionada], ax=ax)
+        ax.set_title(f'Distribución de {columna_seleccionada.replace("_", " ").capitalize()}', fontsize=18)
+        ax.set_xlabel(columna_seleccionada, fontsize=16)  # Etiqueta del eje x más grande
+        # Ajustar el tamaño de los ticks
+        ax.tick_params(axis='both', labelsize=14)
+
+        # Mostrar gráfico en Streamlit
+        st.pyplot(fig)
 
 
 # Cambiar la frecuencia a 5 minutos ('5T') y rellenar valores faltantes con bfill
@@ -264,16 +255,55 @@ df2 = df.asfreq(freq='5T', method='bfill')
 
 df2 = df2.rename(columns={'Fecha_Hora_Salida': 'Fecha_Hora'})
 
-fig, ax = plt.subplots(figsize=(8.5, 3))
-df2['hora'] = df2.index.hour
-medianas = df2.groupby('hora')[columna_seleccionada].median()
-sns.boxplot(df2, x='hora',y=columna_seleccionada, ax=ax, order=medianas.index)
-ax.plot(medianas.index, medianas.values, 'o-', color="cyan", markersize=8, label='Mediana', lw=0.5)
-ax.set_ylabel(columna_seleccionada, fontsize=12)
-ax.set_xlabel('hora', fontsize=12) 
-# Ajustar el tamaño de los ticks
-ax.tick_params(axis='both', labelsize=10)
-st.pyplot(fig)
+if columna_seleccionada != 'Vehiculo':
+    st.markdown("<h5>Gráficos de estacionalidad</h5>", unsafe_allow_html=True)
+
+    col1, col2 = st.columns(2)
+
+    # Agregar contenido en la primera columna
+    with col1:
+        fig, ax = plt.subplots(figsize=(8.5, 4.5))
+        df['dia'] = df.index.day_name()
+        medianas = df.groupby('dia')[columna_seleccionada].median()
+        sns.boxplot(df, x='dia',y=columna_seleccionada, ax=ax, order=medianas.index)
+        medianas.plot(style='o-',color="cyan", markersize=8, label='Mediana',lw=0.5, ax=ax)
+        ax.set_ylabel(columna_seleccionada, fontsize=16)
+        ax.set_xlabel('dia', fontsize=16) 
+        # Ajustar el tamaño de los ticks
+        ax.tick_params(axis='both', labelsize=14)
+        st.pyplot(fig)
+
+        # Agregar contenido en la segunda columna
+    with col2:
+        fig, ax = plt.subplots(figsize=(8.5, 4.5))
+        # Orden para las jornadas
+        jornada_order = ['Madrugada', 'Mañana', 'Tarde', 'Noche']
+
+        # Crear el boxplot con transparencia
+        sns.boxplot(x='Jornada', y=columna_seleccionada, data=df, ax=ax, order=jornada_order)  # Outliers en rojo y semi-transparentes
+
+        # Añadir la línea de mediana por jornada
+        medianas = df.groupby('Jornada',observed=False)[columna_seleccionada].median().reindex(jornada_order)
+        ax.plot(jornada_order, medianas, 'o-', color="cyan", markersize=8, label='Mediana',lw=0.5)  # Mediana como bola azul
+
+        # Etiquetas y título
+        ax.set_ylabel(columna_seleccionada, fontsize=16)
+        ax.set_xlabel('jornada', fontsize=16) 
+        # Ajustar el tamaño de los ticks
+        ax.tick_params(axis='both', labelsize=14)
+        st.pyplot(fig)
+
+
+    fig, ax = plt.subplots(figsize=(8.5, 3))
+    df2['hora'] = df2.index.hour
+    medianas = df2.groupby('hora')[columna_seleccionada].median()
+    sns.boxplot(df2, x='hora',y=columna_seleccionada, ax=ax, order=medianas.index)
+    ax.plot(medianas.index, medianas.values, 'o-', color="cyan", markersize=8, label='Mediana', lw=0.5)
+    ax.set_ylabel(columna_seleccionada, fontsize=12)
+    ax.set_xlabel('hora', fontsize=12) 
+    # Ajustar el tamaño de los ticks
+    ax.tick_params(axis='both', labelsize=10)
+    st.pyplot(fig)
 
 
 # Separación datos train-val-test 70% 15% 15%
@@ -297,39 +327,38 @@ print(f'Tamaño conjunto de entrenamiento: {len(train)}')
 print(f'Tamaño conjunto de validación: {len(val)}')
 print(f'Tamaño conjunto de prueba: {len(test)}')
 
-st.markdown("<h5>Series de tiempo</h5>", unsafe_allow_html=True)
+if columna_seleccionada != 'Vehiculo':
+    st.markdown("<h5>Series de tiempo</h5>", unsafe_allow_html=True)
+    # Crear la figura
+    fig = go.Figure()
 
+    # Agregar las trazas para entrenamiento, validación y prueba
+    fig.add_trace(go.Scatter(x=df.index, y=df[columna_seleccionada], mode='lines', name='Train'))
+    #fig.add_trace(go.Scatter(x=val.index, y=val[columna_seleccionada], mode='lines', name='Validation'))
+    #fig.add_trace(go.Scatter(x=test.index, y=test[columna_seleccionada], mode='lines', name='Test'))
 
-# Crear la figura
-fig = go.Figure()
-
-# Agregar las trazas para entrenamiento, validación y prueba
-fig.add_trace(go.Scatter(x=df.index, y=df[columna_seleccionada], mode='lines', name='Train'))
-#fig.add_trace(go.Scatter(x=val.index, y=val[columna_seleccionada], mode='lines', name='Validation'))
-#fig.add_trace(go.Scatter(x=test.index, y=test[columna_seleccionada], mode='lines', name='Test'))
-
-# Configurar el layout de la figura
-fig.update_layout(
-    xaxis_title="Fecha",
-    yaxis_title=columna_seleccionada,
-    legend_title="Partición:",
-    width=850,
-    height=400,
-    margin=dict(l=20, r=20, t=35, b=20),
-    legend=dict(
-        orientation="h",
-        yanchor="top",
-        y=1,
-        xanchor="left",
-        x=0.001,
+    # Configurar el layout de la figura
+    fig.update_layout(
+        xaxis_title="Fecha",
+        yaxis_title=columna_seleccionada,
+        legend_title="Partición:",
+        width=850,
+        height=400,
+        margin=dict(l=20, r=20, t=35, b=20),
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=1,
+            xanchor="left",
+            x=0.001,
+        )
     )
-)
 
-# Mostrar el range slider en el eje X
-fig.update_xaxes(rangeslider_visible=True)
+    # Mostrar el range slider en el eje X
+    fig.update_xaxes(rangeslider_visible=True)
 
-# Mostrar el gráfico en Streamlit
-st.plotly_chart(fig)
+    # Mostrar el gráfico en Streamlit
+    st.plotly_chart(fig)
 
 
 st.subheader('Análisis de la periodicidad del dataset')
