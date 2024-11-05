@@ -490,6 +490,7 @@ st.write('##### Forecasting')
 st.write('Los modelos de pronóstico (forecasting) se utilizan para predecir valores futuros de una variable en función de patrones y tendencias observados en datos históricos.')
 
 # Crear un DataFrame de variables exógenas
+df2['hora'] = df2.index.hour
 exog_df = df2[['hora']]
 
 # Extraer el día de la semana del índice 
