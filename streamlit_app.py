@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.graph_objects as go
 # Modelado y Forecasting
-import skforecast
+# import skforecast
 from statsmodels.tsa.stattools import acf
 from skforecast.ForecasterAutoreg import ForecasterAutoreg
 from xgboost import XGBRegressor
