@@ -209,7 +209,7 @@ if columna_seleccionada =='Vehiculo':
     st.pyplot(fig)
 
     # Crear una tabla pivote que cuente los viajes por cada vehículo y día de la semana
-    pivot_table = df.pivot_table(index='dia', columns='Vehiculo', aggfunc='sum', fill_value=0)
+    pivot_table = df.pivot_table(index='dia', columns='Vehiculo', aggfunc='size', fill_value=0, margins=True, margins_name="Total")
 
     # Configuración del mapa de calor
     plt.figure(figsize=(18, 6))
