@@ -629,12 +629,12 @@ if st.button('Predecir'):
 
 # st.write(mensaje)
 
-# st.markdown("<h3>Referencias</h3>", unsafe_allow_html=True)  # Usando HTML para subtítulo
-# referencias_html = """
-# <ol>
-#     <li> Notebook con EDA.  <a href="https://colab.research.google.com/drive/1ngMe6wLYAksJzvvYI0VQEnUUjgh-cdz4?usp=sharing">link</a></li>
-#     <li> Keller, C., Glück, F., Gerlach, C. F., & Schlegel, T. (2022). Investigating the potential of data science methods for sustainable public transport. Sustainability, 14(7), 4211. <a href="https://www.mdpi.com/2071-1050/14/7/4211">link</a> .</li>
-# </ol>
-# """
+st.markdown("<h3>Referencias</h3>", unsafe_allow_html=True)  # Usando HTML para subtítulo
+referencias_html = """
+<ol>
+    <li> Notebook con EDA.  <a href="https://colab.research.google.com/drive/1ngMe6wLYAksJzvvYI0VQEnUUjgh-cdz4?usp=sharing">link</a></li>
+    <li> Keller, C., Glück, F., Gerlach, C. F., & Schlegel, T. (2022). Investigating the potential of data science methods for sustainable public transport. Sustainability, 14(7), 4211. <a href="https://www.mdpi.com/2071-1050/14/7/4211">link</a> .</li>
+</ol>
+"""
 
 st.markdown(referencias_html, unsafe_allow_html=True)
