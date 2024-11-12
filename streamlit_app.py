@@ -418,7 +418,7 @@ columna_modelo = st.selectbox(
 
 #decision tree
 st.write('##### DecisionTreeRegressor')
-st.write('El modelo de Árbol de Decisión es un clasificador supervisado que utiliza una estructura de árbol para tomar decisiones basadas en reglas de decisión derivadas de los datos de entrenamiento.')
+st.write('El modelo de Regresion basado en Árbol de Decisión es un clasificador supervisado que utiliza una estructura de árbol para tomar decisiones basadas en reglas de decisión derivadas de los datos de entrenamiento.')
 
 
 # Separar variables predictoras (X) y variable objetivo (y)
@@ -427,6 +427,7 @@ y = df[columna_modelo]
 
 # Dividir los datos en conjuntos de entrenamiento y prueba
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
 
 # Crear y entrenar el árbol de decisión con criterio 'mse'
 model = DecisionTreeRegressor(criterion='absolute_error', max_depth=10, min_samples_split=15, random_state=42)
