@@ -485,156 +485,156 @@ if st.button('Predecir'):
     st.success(mensaje)
 
 
-st.write('##### Forecasting')
-#Variables exogenas 
+# st.write('##### Forecasting')
+# #Variables exogenas 
 
-st.write('Los modelos de pronóstico (forecasting) se utilizan para predecir valores futuros de una variable en función de patrones y tendencias observados en datos históricos.')
+# st.write('Los modelos de pronóstico (forecasting) se utilizan para predecir valores futuros de una variable en función de patrones y tendencias observados en datos históricos.')
 
-# Crear un DataFrame de variables exógenas
-df2['hora'] = df2.index.hour
-exog_df = df2[['hora']]
+# # Crear un DataFrame de variables exógenas
+# df2['hora'] = df2.index.hour
+# exog_df = df2[['hora']]
 
-# Extraer el día de la semana del índice 
-exog_df['dia_semana'] = exog_df.index.dayofweek  # Lunes = 0, Domingo = 6
-
-
-
-# Asegúrate de que el índice tenga frecuencia
-df2 = df2.asfreq('300s')  # 300 segundos
-exog_df = exog_df.asfreq('300s')
-train = train.asfreq('300s')
-val = val.asfreq('300s')
+# # Extraer el día de la semana del índice 
+# exog_df['dia_semana'] = exog_df.index.dayofweek  # Lunes = 0, Domingo = 6
 
 
-lags = 300
 
-# Crear el forecaster con los parámetros especificados
-
-parametros = {'Pasaj':{
-    'n_estimators': 550,
-    'max_depth': 11,
-    'learning_rate':  0.05513142057308684,
-    'reg_alpha': 0.4,
-    'reg_lambda': 0.4,
-    'verbosity': 0,
-    'tree_method': 'hist',
-    'max_bin': 80},
-    'Tiempo_viaje_s': {
-    'n_estimators': 150,
-    'max_depth': 7, 
-    'learning_rate': 0.44680119239545024,
-    'reg_alpha': 1, 
-    'reg_lambda': 0.5,
-    'verbosity': 0,
-    'tree_method': 'hist',
-    'max_bin': 130},
-    'Tiempo_muerto_s':{
-    'n_estimators': 450, 
-    'max_depth': 5, 
-    'learning_rate': 0.3655775100531092, 
-    'reg_alpha': 0.5, 
-    'reg_lambda': 0.3,
-    'verbosity': 0,
-    'tree_method': 'hist',
-    'max_bin': 128}
-              }
-
-params = parametros[columna_modelo]
-
-# Inicializar el regressor con los parámetros
-regressor = XGBRegressor(**params,n_jobs=-1)
-
-# Crear el forecaster
-forecaster = ForecasterAutoreg(
-    regressor=regressor,
-    lags=lags
-)
+# # Asegúrate de que el índice tenga frecuencia
+# df2 = df2.asfreq('300s')  # 300 segundos
+# exog_df = exog_df.asfreq('300s')
+# train = train.asfreq('300s')
+# val = val.asfreq('300s')
 
 
-# Entrenar el forecaster con la serie temporal y las variables exógenas
-forecaster.fit(y=train[columna_modelo],
-               exog=exog_df.loc[train.index])
+# lags = 300
 
-# Selector de fecha con límites
-fecha_fin_input = st.date_input(
-    f"Selecciona la fecha de finalización para la predicción (posterior a {train.index[-1]}):",
-    min_value=train.index[-1] + timedelta(days=1),  # Un día después del último valor en train
-    max_value=train.index[-1] + timedelta(days=30)  # Máximo un mes después
-)
+# # Crear el forecaster con los parámetros especificados
 
-# Añadir un selector de hora para la predicción
-hora_fin_input = st.time_input("Selecciona la hora de finalización para la predicción:")
+# parametros = {'Pasaj':{
+#     'n_estimators': 550,
+#     'max_depth': 11,
+#     'learning_rate':  0.05513142057308684,
+#     'reg_alpha': 0.4,
+#     'reg_lambda': 0.4,
+#     'verbosity': 0,
+#     'tree_method': 'hist',
+#     'max_bin': 80},
+#     'Tiempo_viaje_s': {
+#     'n_estimators': 150,
+#     'max_depth': 7, 
+#     'learning_rate': 0.44680119239545024,
+#     'reg_alpha': 1, 
+#     'reg_lambda': 0.5,
+#     'verbosity': 0,
+#     'tree_method': 'hist',
+#     'max_bin': 130},
+#     'Tiempo_muerto_s':{
+#     'n_estimators': 450, 
+#     'max_depth': 5, 
+#     'learning_rate': 0.3655775100531092, 
+#     'reg_alpha': 0.5, 
+#     'reg_lambda': 0.3,
+#     'verbosity': 0,
+#     'tree_method': 'hist',
+#     'max_bin': 128}
+#               }
 
-# Crear la fecha y hora de finalización
-fecha_fin = pd.Timestamp.combine(fecha_fin_input, hora_fin_input)
+# params = parametros[columna_modelo]
 
-# Obtener la última fecha de validación
-ultima_fecha_train = train.index[-1] + pd.Timedelta(minutes=5)  # Sumar 5 minutos
+# # Inicializar el regressor con los parámetros
+# regressor = XGBRegressor(**params,n_jobs=-1)
 
-# Calcular la cantidad de pasos a predecir
-pasos_a_predecir = (fecha_fin - ultima_fecha_train).total_seconds() // 300  # 300 segundos = 5 minutos
-
-
-# Generar las fechas futuras
-fechas_futuras = pd.date_range(start=ultima_fecha_train, periods=int(pasos_a_predecir), freq='5T')
-
-# Crear las variables exógenas
-exog_futuro = pd.DataFrame({
-    'hora': fechas_futuras.hour,
-    'dia_semana': fechas_futuras.dayofweek
-}, index=fechas_futuras)
-
-y_pred_futuro = forecaster.predict(steps=int(pasos_a_predecir), exog=exog_futuro)
-
-fig = go.Figure()
-
-# Trazas para los datos de validación y las predicciones futuras
-fig.add_trace(go.Scatter(x=val.index, y=val[columna_modelo], name="Validación", mode="lines"))
-fig.add_trace(go.Scatter(x=fechas_futuras, y=round(y_pred_futuro,0), name="Predicción Futuro", mode="lines"))
-
-# Configurar el layout
-fig.update_layout(
-    xaxis_title="Fecha y hora",
-    yaxis_title=columna_modelo,
-    width=850,
-    height=400,
-    margin=dict(l=20, r=20, t=35, b=20),
-    legend=dict(orientation="h", yanchor="top", y=1, xanchor="left", x=0.001)
-)
-
-# Mostrar el range slider en el eje X
-fig.update_xaxes(rangeslider_visible=True)
-
-# Mostrar el gráfico en Streamlit
-st.plotly_chart(fig)
-
-# Calcular el error absoluto medio (MAE) entre la columna 'Pasaj' y las predicciones 'y_pred'
-mae = mean_absolute_error(val[columna_modelo], y_pred_futuro.loc[val.index])
+# # Crear el forecaster
+# forecaster = ForecasterAutoreg(
+#     regressor=regressor,
+#     lags=lags
+# )
 
 
-#st.write(f"Error absoluto medio (MAE): {round(mae,1)}")
+# # Entrenar el forecaster con la serie temporal y las variables exógenas
+# forecaster.fit(y=train[columna_modelo],
+#                exog=exog_df.loc[train.index])
 
-# Lógica para formatear el MAE
-if columna_modelo == 'Tiempo_viaje_s' or columna_modelo == 'Tiempo_muerto_s':
-    minutes, seconds = divmod(mae, 60)  # Obtener minutos y segundos
-    hours, minutes = divmod(minutes, 60)  # Obtener horas y minutos
+# # Selector de fecha con límites
+# fecha_fin_input = st.date_input(
+#     f"Selecciona la fecha de finalización para la predicción (posterior a {train.index[-1]}):",
+#     min_value=train.index[-1] + timedelta(days=1),  # Un día después del último valor en train
+#     max_value=train.index[-1] + timedelta(days=30)  # Máximo un mes después
+# )
+
+# # Añadir un selector de hora para la predicción
+# hora_fin_input = st.time_input("Selecciona la hora de finalización para la predicción:")
+
+# # Crear la fecha y hora de finalización
+# fecha_fin = pd.Timestamp.combine(fecha_fin_input, hora_fin_input)
+
+# # Obtener la última fecha de validación
+# ultima_fecha_train = train.index[-1] + pd.Timedelta(minutes=5)  # Sumar 5 minutos
+
+# # Calcular la cantidad de pasos a predecir
+# pasos_a_predecir = (fecha_fin - ultima_fecha_train).total_seconds() // 300  # 300 segundos = 5 minutos
+
+
+# # Generar las fechas futuras
+# fechas_futuras = pd.date_range(start=ultima_fecha_train, periods=int(pasos_a_predecir), freq='5T')
+
+# # Crear las variables exógenas
+# exog_futuro = pd.DataFrame({
+#     'hora': fechas_futuras.hour,
+#     'dia_semana': fechas_futuras.dayofweek
+# }, index=fechas_futuras)
+
+# y_pred_futuro = forecaster.predict(steps=int(pasos_a_predecir), exog=exog_futuro)
+
+# fig = go.Figure()
+
+# # Trazas para los datos de validación y las predicciones futuras
+# fig.add_trace(go.Scatter(x=val.index, y=val[columna_modelo], name="Validación", mode="lines"))
+# fig.add_trace(go.Scatter(x=fechas_futuras, y=round(y_pred_futuro,0), name="Predicción Futuro", mode="lines"))
+
+# # Configurar el layout
+# fig.update_layout(
+#     xaxis_title="Fecha y hora",
+#     yaxis_title=columna_modelo,
+#     width=850,
+#     height=400,
+#     margin=dict(l=20, r=20, t=35, b=20),
+#     legend=dict(orientation="h", yanchor="top", y=1, xanchor="left", x=0.001)
+# )
+
+# # Mostrar el range slider en el eje X
+# fig.update_xaxes(rangeslider_visible=True)
+
+# # Mostrar el gráfico en Streamlit
+# st.plotly_chart(fig)
+
+# # Calcular el error absoluto medio (MAE) entre la columna 'Pasaj' y las predicciones 'y_pred'
+# mae = mean_absolute_error(val[columna_modelo], y_pred_futuro.loc[val.index])
+
+
+# #st.write(f"Error absoluto medio (MAE): {round(mae,1)}")
+
+# # Lógica para formatear el MAE
+# if columna_modelo == 'Tiempo_viaje_s' or columna_modelo == 'Tiempo_muerto_s':
+#     minutes, seconds = divmod(mae, 60)  # Obtener minutos y segundos
+#     hours, minutes = divmod(minutes, 60)  # Obtener horas y minutos
     
-    mensaje = (
-        f"Para este modelo en promedio, la diferencia entre las predicciones del modelo y los valores reales es de {round(mae, 1)} segundos. En h, min y s:  {int(hours)}:{int(minutes)}:{seconds:.0f}"
-        )
-else:
-    mensaje = (
-    f"Para este modelo en promedio, la diferencia entre las predicciones del modelo y los valores reales es de {round(mae, 0)} pasajeros por observación"
-    )
+#     mensaje = (
+#         f"Para este modelo en promedio, la diferencia entre las predicciones del modelo y los valores reales es de {round(mae, 1)} segundos. En h, min y s:  {int(hours)}:{int(minutes)}:{seconds:.0f}"
+#         )
+# else:
+#     mensaje = (
+#     f"Para este modelo en promedio, la diferencia entre las predicciones del modelo y los valores reales es de {round(mae, 0)} pasajeros por observación"
+#     )
 
-st.write(mensaje)
+# st.write(mensaje)
 
-st.markdown("<h3>Referencias</h3>", unsafe_allow_html=True)  # Usando HTML para subtítulo
-referencias_html = """
-<ol>
-    <li> Notebook con EDA.  <a href="https://colab.research.google.com/drive/1ngMe6wLYAksJzvvYI0VQEnUUjgh-cdz4?usp=sharing">link</a></li>
-    <li> Keller, C., Glück, F., Gerlach, C. F., & Schlegel, T. (2022). Investigating the potential of data science methods for sustainable public transport. Sustainability, 14(7), 4211. <a href="https://www.mdpi.com/2071-1050/14/7/4211">link</a> .</li>
-</ol>
-"""
+# st.markdown("<h3>Referencias</h3>", unsafe_allow_html=True)  # Usando HTML para subtítulo
+# referencias_html = """
+# <ol>
+#     <li> Notebook con EDA.  <a href="https://colab.research.google.com/drive/1ngMe6wLYAksJzvvYI0VQEnUUjgh-cdz4?usp=sharing">link</a></li>
+#     <li> Keller, C., Glück, F., Gerlach, C. F., & Schlegel, T. (2022). Investigating the potential of data science methods for sustainable public transport. Sustainability, 14(7), 4211. <a href="https://www.mdpi.com/2071-1050/14/7/4211">link</a> .</li>
+# </ol>
+# """
 
 st.markdown(referencias_html, unsafe_allow_html=True)
