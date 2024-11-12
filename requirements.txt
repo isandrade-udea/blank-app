@@ -1,11 +1,13 @@
 Pillow
 matplotlib
 seaborn
-skforecast
+skforecast == 0.3.0
 lightgbm
-scikit-learn
+scikit-learn>=0.24
 plotly
 scipy
 statsmodels
 xgboost
 datetime
+tqdm>=4.57.0
+statsmodels>=0.12.2
