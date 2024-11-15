@@ -35,7 +35,7 @@ sns.set_palette(cootracovi_palette)
 
 st.title(":bus: Cootracovi ")
 st.write(
-    "Modelo de prediccion de forecast para predecir parametros de la empresa trasnportadora de las rutas: HONDA - ORIENTAL - HONDA"
+    "Modelo de prediccion de parametros de la empresa trasnportadora de las rutas: HONDA - ORIENTAL - HONDA"
 )
 
 # Cargar datos desde un enlace de GitHub
