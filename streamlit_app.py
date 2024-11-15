@@ -40,7 +40,12 @@ st.write(
 
 # Cargar datos desde un enlace de GitHub
 st.subheader("Cargar Datos desde un Link de GitHub")
-url = st.text_input("Introduce la URL del archivo CSV en GitHub")
+
+# URL predeterminada
+url_predeterminado = "https://raw.githubusercontent.com/isandrade-udea/LabIA/main/Transporte/COOTRACOVI/viajes_x_viajes%2015%20al%2030%20julio%202024.xlsx%20-%20Worksheet.csv"
+
+# Crear el campo de texto con la URL predeterminada
+url = st.text_input("Introduce la URL del archivo CSV en GitHub", value=url_predeterminado)
 
 def cargar_csv_desde_url(url):
     # Verificar si se ha introducido una URL
