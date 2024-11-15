@@ -1,13 +1,14 @@
-Pillow
-matplotlib
-seaborn
+streamlit == 1.39.0
+pandas == 2.2.3
+matplotlib == 3.9.2
+seaborn == 0.13.2
 skforecast == 0.3.0
 lightgbm
-scikit-learn>=0.24
+scikit-learn ==1.5.2
 plotly
 scipy
-statsmodels
-xgboost
+statsmodels == 0.14.4
+xgboost == 2.1.1
 datetime
 tqdm>=4.57.0
 statsmodels>=0.12.2
