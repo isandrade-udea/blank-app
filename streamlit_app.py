@@ -16,7 +16,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.tree import plot_tree
 
 # Definir una paleta de colores personalizada basada en la imagen
-cootracovi_palette = ["#4CAF50",  # Verde del logo (sostenibilidad y eco-conducción)
+cootracovi_palette = ["#66BB6A",  # Verde del logo (sostenibilidad y eco-conducción)
                       "#1E90FF",  # Azul del fondo (tranquilidad y profesionalismo)
                       "#FFD700",  # Amarillo o beige para cercanía y calidez
                       "#FFA07A"]  # Naranja suave para dinamismo y energía
@@ -218,7 +218,7 @@ if columna_seleccionada =='Vehiculo':
 
     # Configuración del mapa de calor
     plt.figure(figsize=(18, 6))
-    heatmap = sns.heatmap(pivot_table, annot=True, fmt="d", cmap=cootracovi_palette, cbar_kws={'label': 'Cantidad de viajes'})
+    heatmap = sns.heatmap(pivot_table, annot=True, fmt="d", cmap="GnBu", cbar_kws={'label': 'Cantidad de viajes'})
 
     # Etiquetas y título
     plt.ylabel('Día de la semana',fontsize=16)
@@ -271,7 +271,7 @@ if columna_seleccionada != 'Vehiculo':
         df['dia'] = df.index.day_name()
         medianas = df.groupby('dia')[columna_seleccionada].median()
         sns.boxplot(df, x='dia',y=columna_seleccionada, ax=ax, order=medianas.index)
-        medianas.plot(style='o-',color="cyan", markersize=8, label='Mediana',lw=0.5, ax=ax)
+        medianas.plot(style='o-',color="#2196F3", markersize=8, label='Mediana',lw=0.5, ax=ax)
         ax.set_ylabel(columna_seleccionada, fontsize=16)
         ax.set_xlabel('dia', fontsize=16) 
         # Ajustar el tamaño de los ticks
@@ -289,7 +289,7 @@ if columna_seleccionada != 'Vehiculo':
 
         # Añadir la línea de mediana por jornada
         medianas = df.groupby('Jornada',observed=False)[columna_seleccionada].median().reindex(jornada_order)
-        ax.plot(jornada_order, medianas, 'o-', color="cyan", markersize=8, label='Mediana',lw=0.5)  # Mediana como bola azul
+        ax.plot(jornada_order, medianas, 'o-', color="#2196F3", markersize=8, label='Mediana',lw=0.5)  # Mediana como bola azul
 
         # Etiquetas y título
         ax.set_ylabel(columna_seleccionada, fontsize=16)
@@ -303,7 +303,7 @@ if columna_seleccionada != 'Vehiculo':
     df2['hora'] = df2.index.hour
     medianas = df2.groupby('hora')[columna_seleccionada].median()
     sns.boxplot(df2, x='hora',y=columna_seleccionada, ax=ax, order=medianas.index)
-    ax.plot(medianas.index, medianas.values, 'o-', color="cyan", markersize=8, label='Mediana', lw=0.5)
+    ax.plot(medianas.index, medianas.values, 'o-', color="#2196F3", markersize=8, label='Mediana', lw=0.5)
     ax.set_ylabel(columna_seleccionada, fontsize=12)
     ax.set_xlabel('hora', fontsize=12) 
     # Ajustar el tamaño de los ticks
