@@ -218,7 +218,7 @@ if columna_seleccionada =='Vehiculo':
 
     # Configuración del mapa de calor
     plt.figure(figsize=(18, 6))
-    heatmap = sns.heatmap(pivot_table, annot=True, fmt="d", cmap="YlGnBu", cbar_kws={'label': 'Cantidad de viajes'})
+    heatmap = sns.heatmap(pivot_table, annot=True, fmt="d", cmap=cootracovi_palette, cbar_kws={'label': 'Cantidad de viajes'})
 
     # Etiquetas y título
     plt.ylabel('Día de la semana',fontsize=16)
