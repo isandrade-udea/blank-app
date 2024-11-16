@@ -16,8 +16,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.tree import plot_tree
 
 # Definir una paleta de colores personalizada basada en la imagen
-cootracovi_palette = ["#1E90FF",  # Azul del fondo (tranquilidad y profesionalismo)
-                      "#4CAF50",  # Verde del logo (sostenibilidad y eco-conducción)
+cootracovi_palette = ["#4CAF50",  # Verde del logo (sostenibilidad y eco-conducción)
+                      "#1E90FF",  # Azul del fondo (tranquilidad y profesionalismo)
                       "#FFD700",  # Amarillo o beige para cercanía y calidez
                       "#FFA07A"]  # Naranja suave para dinamismo y energía
 
