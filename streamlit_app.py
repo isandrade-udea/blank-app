@@ -398,7 +398,7 @@ ax.set_xlabel('Diferencia entre observaciones (segundos)')
 ax.set_ylabel('Frecuencia')
 
 # Agregar una línea vertical en la mediana
-ax.axvline(mediana_dif, color='r', linestyle='--', label='Mediana: {:.2f} s ({:.2f} min)'.format(mediana_dif, mediana_minutos))
+ax.axvline(mediana_dif, color='#004D40', linestyle='--', label='Mediana: {:.2f} s ({:.2f} min)'.format(mediana_dif, mediana_minutos))
 ax.legend()
 
 # Mostrar el gráfico en Streamlit
