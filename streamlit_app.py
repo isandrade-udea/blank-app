@@ -16,10 +16,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.tree import plot_tree
 
 # Definir una paleta de colores personalizada basada en la imagen
-cootracovi_palette = ["#66BB6A",  # Verde del logo (sostenibilidad y eco-conducción)
-                      "#1E90FF",  # Azul del fondo (tranquilidad y profesionalismo)
-                      "#FFD700",  # Amarillo o beige para cercanía y calidez
-                      "#FFA07A"]  # Naranja suave para dinamismo y energía
+cootracovi_palette = ["#4CAF50",  # Verde del logo (sostenibilidad y eco-conducción)
+                      "#A5D6A7",  # Azul del fondo (tranquilidad y profesionalismo)
+                      "#26A69A",  # Amarillo o beige para cercanía y calidez
+                      "#004D40"]  # Naranja suave para dinamismo y energía
 
 # Establecer la paleta en Seaborn
 sns.set_palette(cootracovi_palette)
