@@ -338,7 +338,7 @@ if columna_seleccionada != 'Vehiculo':
     fig = go.Figure()
   
     # Agregar la traza de entrenamiento
-    fig.add_trace(go.Scatter(x=df.index, y=df[columna_seleccionada], mode='lines', name='Train', line=dict(color="#4CAF50")  # Verde sólido))
+    fig.add_trace(go.Scatter(x=df.index, y=df[columna_seleccionada], mode='lines', name='Train', line=dict(color="#4CAF50") ))
 
     # Configurar el layout de la figura
     fig.update_layout(
