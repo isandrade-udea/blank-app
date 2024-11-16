@@ -271,7 +271,7 @@ if columna_seleccionada != 'Vehiculo':
         df['dia'] = df.index.day_name()
         medianas = df.groupby('dia')[columna_seleccionada].median()
         sns.boxplot(df, x='dia',y=columna_seleccionada, ax=ax, order=medianas.index)
-        medianas.plot(style='o-',color="#2196F3", markersize=8, label='Mediana',lw=0.5, ax=ax)
+        medianas.plot(style='o-',color="#004D40", markersize=8, label='Mediana',lw=0.5, ax=ax)
         ax.set_ylabel(columna_seleccionada, fontsize=16)
         ax.set_xlabel('dia', fontsize=16) 
         # Ajustar el tamaño de los ticks
@@ -289,7 +289,7 @@ if columna_seleccionada != 'Vehiculo':
 
         # Añadir la línea de mediana por jornada
         medianas = df.groupby('Jornada',observed=False)[columna_seleccionada].median().reindex(jornada_order)
-        ax.plot(jornada_order, medianas, 'o-', color="#2196F3", markersize=8, label='Mediana',lw=0.5)  # Mediana como bola azul
+        ax.plot(jornada_order, medianas, 'o-', color="#004D40", markersize=8, label='Mediana',lw=0.5)  # Mediana como bola azul
 
         # Etiquetas y título
         ax.set_ylabel(columna_seleccionada, fontsize=16)
@@ -303,7 +303,7 @@ if columna_seleccionada != 'Vehiculo':
     df2['hora'] = df2.index.hour
     medianas = df2.groupby('hora')[columna_seleccionada].median()
     sns.boxplot(df2, x='hora',y=columna_seleccionada, ax=ax, order=medianas.index)
-    ax.plot(medianas.index, medianas.values, 'o-', color="#2196F3", markersize=8, label='Mediana', lw=0.5)
+    ax.plot(medianas.index, medianas.values, 'o-', color="#004D40", markersize=8, label='Mediana', lw=0.5)
     ax.set_ylabel(columna_seleccionada, fontsize=12)
     ax.set_xlabel('hora', fontsize=12) 
     # Ajustar el tamaño de los ticks
@@ -336,11 +336,9 @@ if columna_seleccionada != 'Vehiculo':
     st.markdown("<h5>Series de tiempo</h5>", unsafe_allow_html=True)
     # Crear la figura
     fig = go.Figure()
-
-    # Agregar las trazas para entrenamiento, validación y prueba
-    fig.add_trace(go.Scatter(x=df.index, y=df[columna_seleccionada], mode='lines', name='Train'))
-    #fig.add_trace(go.Scatter(x=val.index, y=val[columna_seleccionada], mode='lines', name='Validation'))
-    #fig.add_trace(go.Scatter(x=test.index, y=test[columna_seleccionada], mode='lines', name='Test'))
+  
+    # Agregar la traza de entrenamiento
+    fig.add_trace(go.Scatter(x=df.index, y=df[columna_seleccionada], mode='lines', name='Train', line=dict(color="#4CAF50")  # Verde sólido))
 
     # Configurar el layout de la figura
     fig.update_layout(
@@ -409,7 +407,7 @@ st.pyplot(fig)
 # Mensaje sobre la mediana
 st.write(f"La frecuencia mediana es de {mediana_dif:.2f} segundos, que son {mediana_minutos:.2f} minutos. La vamos a tomar como 5 minutos.")
 
-st.subheader('Modelos de Machine Learning')
+st.subheader('Modelo de Machine Learning')
 
 # Crear un selector para elegir la columna
 columna_modelo = st.selectbox(
